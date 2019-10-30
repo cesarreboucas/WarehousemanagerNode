@@ -27,6 +27,7 @@ router.get('/seed', function(req, res) {
 
 /* GET users listing. */
 router.get('/products', productsController.products_list);
+router.post('/products', productsController.products_add);
 
 
 /* GET users listing. */
