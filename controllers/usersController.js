@@ -33,18 +33,27 @@ exports.users_add = function(req, res) {
     
     try {
         if(req.body.password.length>0) {
-            req.body.password = bcrypt.hashSync(req.body.password, 8);
-            mysql.query('insert into users set ?', req.body, function (error, results, fields) {
-                if(error) res.send(error);
-                else res.send({"id":results.insertId});
+            module.exports.mySqlcreateUser(req.body,function(r) {
+                res.send(r);
             });
+            
         } else {
             res.send({"error":"Password must be not null!"})
         }    
     } catch (error) {
         console.log(error);
+        res.send({"error":"Password must be not null!"})
     }    
 };
+
+exports.mySqlcreateUser = function (jsonUser,callback) {
+    jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
+    mysql.query('insert into users set ?', jsonUser, function (error, results, fields) {
+        if(error) callback(error);
+        else callback({"id":results.insertId});
+    });
+}
+
 
 /*
 

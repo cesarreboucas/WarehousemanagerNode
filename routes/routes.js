@@ -7,6 +7,23 @@ router.get('/', function(req, res) {
     res.send({"working":1});
 });
 
+router.get('/seed', function(req, res) {
+    const fs = require("fs");
+    async function readfile() {
+        const content = fs.readFileSync("./data/seedUsers.js");
+        const users = JSON.parse(content);
+        users.forEach(user => {
+            usersController.mySqlcreateUser(user, function(err, r) {
+                console.log("Creating User "+user.name+" id: "+r.id);
+            });
+            
+        });
+    }
+    readfile();
+    console.log("Done");
+    res.send({"working":1});
+});
+
 
 /* GET users listing. */
 router.get('/products', productsController.products_list);
