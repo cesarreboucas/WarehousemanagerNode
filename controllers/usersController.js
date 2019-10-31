@@ -46,12 +46,14 @@ exports.users_add = function(req, res) {
     }    
 };
 
-exports.mySqlcreateUser = function (jsonUser,callback) {
-    jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
-    mysql.query('insert into users set ?', jsonUser, function (error, results, fields) {
-        if(error) callback(error);
-        else callback({"id":results.insertId});
-    });
+exports.mySqlCreateUser = async function (jsonUser) {
+    try {
+        jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
+        let result = await mysql.query('insert into users set ?', jsonUser);
+        return {"id":result.insertId}
+    } catch (error) {
+        throw error;
+    }
 }
 
 

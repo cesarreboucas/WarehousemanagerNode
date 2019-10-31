@@ -28,15 +28,16 @@ router.post('/users', usersController.users_add);
 
 
 /* ####### SEED ############*/
-
-router.get('/seed', function(req, res) {
+router.get('/seed', async (req, res, next) => {
     const fs = require("fs");
     let mysql = require("../services/mysql");
-    const async = require('async');
 
-    async.waterfall([
-        function(callback) {
-            mysql.query('CREATE TABLE IF NOT EXISTS `users` ( \
+    try {
+        let result = await mysql.query(
+            'drop database if exists warehousemanager; \
+            create database warehousemanager; \
+            use warehousemanager; \
+            CREATE TABLE IF NOT EXISTS `users` ( \
                 `id` int NOT NULL AUTO_INCREMENT, \
                 `name` varchar(255) NOT NULL, \
                 `username` varchar(255) NOT NULL, \
@@ -45,30 +46,16 @@ router.get('/seed', function(req, res) {
                 `question` varchar(255) NOT NULL, \
                 `answer` varchar(255) NOT NULL, \
                 PRIMARY KEY (`id`) \
-              );', function(error, results, fields) {
-                if(error) console.log(error);
-                else {
-                    console.log("Create table Users");
-                    callback(null);
-                }
-            });
-        },function(callback) {
-            mysql.query('CREATE TABLE IF NOT EXISTS `orders` ( \
+              ); \
+              CREATE TABLE IF NOT EXISTS `orders` ( \
                 `id` int NOT NULL AUTO_INCREMENT, \
                 `user_id` int NOT NULL, \
                 `warehouse_id` int NOT NULL, \
                 `ordertime` timestamp NOT NULL, \
                 PRIMARY KEY (`id`), \
                 FOREIGN KEY (user_id) REFERENCES users(id) \
-              );', function(error, results, fields) {
-                if(error) console.log(error);
-                else {
-                    console.log("Create table Orders");
-                    callback(null);
-                }
-            });
-        },function(callback) {
-            mysql.query('CREATE TABLE IF NOT EXISTS `products_order` ( \
+              ); \
+              CREATE TABLE IF NOT EXISTS `products_order` ( \
                 `id` int NOT NULL AUTO_INCREMENT, \
                 `order_id` int NOT NULL,  \
                 `product_id` varchar(50) NOT NULL, \
@@ -77,65 +64,33 @@ router.get('/seed', function(req, res) {
                 `sale_price` DECIMAL(10,3) NOT NULL, \
                 PRIMARY KEY (`id`), \
                 FOREIGN KEY (`order_id`) REFERENCES orders(`id`) \
-              );', function(error, results, fields) {
-                if(error) console.log(error);
-                else {
-                    console.log("Create table Products_Order");
-                    callback(null);
-                }
-            });
-        },
-        function (callback) {
-            console.log("Reading the file Users");
-            let content = fs.readFileSync("./data/seedUsers.json","utf8");
-            callback(null, content);
-        },
-        function(content,callback) {
-            console.log("Start Creating Users");
-            const users = JSON.parse(content);    
-            users.forEach(user => {
-                usersController.mySqlcreateUser(user, function(r) {
-                    //console.log(r);
-                });  
-            });
-            callback(null);
-        },
-        function (callback) {
-            console.log("Reading the file Orders");
-            let content = fs.readFileSync("./data/seedOrders.json","utf8");
-            callback(null, content);
-        },
-        function(content,callback) {
-            console.log("Start Creating Orders");
-            const orders = JSON.parse(content);  
-            orders.forEach(order => {
-                ordersController.mySqlcreateOrders(order, function(r) {
-                    //console.log(r);
-                });                
-            });
-            callback(null);
-        },function (callback) {
-            console.log("Reading the file Orders");
-            let content = fs.readFileSync("./data/seedProductsOrder.json","utf8");
-            callback(null, content);
-        },
-        function(content,callback) {
-            console.log("Start Creating ProductsOrders");
-            const productsorder = JSON.parse(content);  
-            productsorder.forEach(productsorder => {
-                productsOrderController.mySqlcreateProductsOrder(productsorder, function(r) {
-                    //console.log(r);
-                });                
-            });
-            callback(null, null);
-        }
-    ], function (err, result) {
-        if(err) res.send({"Seed":"Error"});
-        else res.send({"Seed":"Done"});
-    });
-    
-    
-    
+              );'
+        );
+        let usersContent = fs.readFileSync("./data/seedUsers.json","utf8");
+        let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
+        let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
+
+        console.log("Start Creating Users");
+        const users = JSON.parse(usersContent);    
+        await users.forEach(async user => {
+            await usersController.mySqlCreateUser(user);
+        });
+
+        console.log("Start Creating Orders");
+        const orders = JSON.parse(ordersContent);  
+        await orders.forEach(async order => {
+            await ordersController.mySqlCreateOrders(order)                
+        });
+        
+        console.log("Start Creating ProductsOrders");
+        const productsorder = JSON.parse(productOrdersContent);  
+        await productsorder.forEach(async productsorder => {
+            await productsOrderController.mySqlCreateProductsOrder(productsorder);
+        });
+        res.send({seed: "ok"});
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 module.exports = router;

@@ -20,9 +20,11 @@ exports.orders_add = function(req, res) {
     }    
 };
 
-exports.mySqlcreateOrders = function(jsonOrder, callback) {
-    mysql.query('insert into orders set ?', jsonOrder, function (error, results, fields) {
-        if(error) callback(error);
-        else callback({"id":results.insertId});
-    });
+exports.mySqlCreateOrders = async function(jsonOrder) {
+    try {
+        let result = await mysql.query('insert into orders set ?', jsonOrder);
+        return {"id":result.insertId};
+    } catch (error) {
+        throw error;
+    }
 };
