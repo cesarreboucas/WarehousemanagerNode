@@ -1,8 +1,4 @@
-//const {Firestore} = require('@google-cloud/firestore');
 const firestore = require('../services/firestore');
-
-//var ref = db.ref();
-
 
 exports.products_list = function(req, res) {
     
