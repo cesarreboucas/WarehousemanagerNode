@@ -31,44 +31,13 @@ router.post('/users', usersController.users_add);
 router.get('/seed', async (req, res, next) => {
     const fs = require("fs");
     let mysql = require("../services/mysql");
-
+    let databaseSeed = fs.readFileSync("./data/warehouse_management.sql","utf8");
     try {
-        let result = await mysql.query(
-            'drop database if exists warehousemanager; \
-            create database warehousemanager; \
-            use warehousemanager; \
-            CREATE TABLE IF NOT EXISTS `users` ( \
-                `id` int NOT NULL AUTO_INCREMENT, \
-                `name` varchar(255) NOT NULL, \
-                `username` varchar(255) NOT NULL, \
-                `password` varchar(255) NOT NULL, \
-                `role` varchar(255) NOT NULL, \
-                `question` varchar(255) NOT NULL, \
-                `answer` varchar(255) NOT NULL, \
-                PRIMARY KEY (`id`) \
-              ); \
-              CREATE TABLE IF NOT EXISTS `orders` ( \
-                `id` int NOT NULL AUTO_INCREMENT, \
-                `user_id` int NOT NULL, \
-                `warehouse_id` int NOT NULL, \
-                `ordertime` timestamp NOT NULL, \
-                PRIMARY KEY (`id`), \
-                FOREIGN KEY (user_id) REFERENCES users(id) \
-              ); \
-              CREATE TABLE IF NOT EXISTS `products_order` ( \
-                `id` int NOT NULL AUTO_INCREMENT, \
-                `order_id` int NOT NULL,  \
-                `product_id` varchar(50) NOT NULL, \
-                `quantity` int NOT NULL, \
-                `cost` DECIMAL(10,3) NOT NULL, \
-                `sale_price` DECIMAL(10,3) NOT NULL, \
-                PRIMARY KEY (`id`), \
-                FOREIGN KEY (`order_id`) REFERENCES orders(`id`) \
-              );'
-        );
+        let result = await mysql.query(databaseSeed);
         let usersContent = fs.readFileSync("./data/seedUsers.json","utf8");
         let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
         let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
+        let seedProducts = fs.readFileSync("./data/seedProducts.json","utf8");
 
         console.log("Start Creating Users");
         const users = JSON.parse(usersContent);    
@@ -86,6 +55,11 @@ router.get('/seed', async (req, res, next) => {
         const productsorder = JSON.parse(productOrdersContent);  
         await productsorder.forEach(async productsorder => {
             await productsOrderController.mySqlCreateProductsOrder(productsorder);
+        });
+        console.log("Strt Creating Products");
+        const products = JSON.parse(seedProducts);  
+        await products.forEach(async product => {
+            await productsController.productsSave(product);           
         });
         res.send({seed: "ok"});
     } catch (error) {

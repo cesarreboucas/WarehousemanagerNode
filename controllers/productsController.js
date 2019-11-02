@@ -15,57 +15,24 @@ exports.products_list = function(req, res) {
         });
 };
 
-exports.products_add = function(req, res) {
-    if(req.body.barcode && req.body.barcode.length>0) {
-        firestore.doc('products/'+req.body.barcode).set(
-            req.body
-        ).then(() => {
+exports.products_add = async function(req, res) {
+    try {
+        if(req.body.barcode && req.body.barcode.length>0) {
+            await module.exports.productsSave(req.body);
             res.send({"status":1});
-        }).catch(err => {
-            res.send({"status":0});
-        });
-    } else {
+        } else throw new Error("Barcode out of bound");
+    } catch (error) {
         res.send({"status":0});
     }
 }
 
- /* 
-async function quickstart() {
-  // Obtain a document reference.
-  const document = firestore.doc('products/sevenup2');
- 
-  // Enter new data into the document.
-  
-  await document.set({
-    title: 'Welcome to Firestore',
-    body: 'Hello World',
-  });
-  console.log('Entered new data into the document');
- 
-  // Update an existing document.
-  await document.update({
-    body: 'My first Firestore app',
-  });
-  console.log('Updated an existing document');
- 
-  // Read the document.
-  let doc = await document.get();
-  console.log('Read the document');
- 
-  // Delete the document.
-  await document.delete();
-  console.log('Deleted the document');
+exports.productsSave = async function(jsonProduct) {
+    try {
+        await firestore.doc('products/'+jsonProduct.barcode).set(jsonProduct);
+        return 1;
+    } catch (error) {
+        throw error;
+    }
 }
-quickstart();
 
-*/
-
-
-/*
-firebase-adminsdk
-Email address	
-firebase-adminsdk-b2pd4@warehousemanager-2f311.iam.gserviceaccount.com
-Key IDs	
-7259aa5f28ee3179e59cf9dd15a5ee7a4876b1ae    
-
-*/
+ 

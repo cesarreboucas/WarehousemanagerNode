@@ -30,7 +30,6 @@ exports.users_auth = function(req, res) {
 };
 
 exports.users_add = function(req, res) {
-    
     try {
         if(req.body.password.length>0) {
             module.exports.mySqlcreateUser(req.body,function(r) {
@@ -55,15 +54,3 @@ exports.mySqlCreateUser = async function (jsonUser) {
         throw error;
     }
 }
-
-
-/*
-
-CREATE TABLE users (
-	id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	name varchar(255),
-    email varchar(255),
-	password varchar(255)
-);
-
-*/
