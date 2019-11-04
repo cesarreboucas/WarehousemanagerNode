@@ -1,55 +1,79 @@
 const mysql = require('../services/mysql');
 const bcrypt = require('bcryptjs');
+const validationHelper = require('../helpers/ValidationHelper');
 
-exports.users_list = function(req, res) {
-    mysql.query('select * from users', function(error, results, fields) {
-        if(error) res.send(error);
-        else res.send(results);
-    });
-};
-
-exports.users_auth = function(req, res) {
-    if(req.body.email.length > 0 && req.body.password.length > 0) {
-        try{
-            mysql.query('select * from users where email = ?', req.body.email, function(error, results, fields) {
-                if(error) res.send(error);
-                else {
-                    if(results.length>0 && bcrypt.compareSync(req.body.password, results[0].password)) {
-                        res.send(results);
-                    } else {
-                        res.send({"auth":0});
-                    }
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    } else {
-        res.send({"error":"Email and Password cant be null!"})
+exports.listUsers = async (req, res) => {
+    try {
+        let result = await mysql.query('select * from users');
+        res.send(result[0]);
+    } catch (error) {
+        res.send(error);
     }
 };
 
-exports.users_add = function(req, res) {
+exports.authenticateUser = async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
     try {
-        if(req.body.password.length>0) {
-            module.exports.mySqlcreateUser(req.body,function(r) {
-                res.send(r);
-            });
-            
+        if(validationHelper.checkAuth(email, password)) {
+            let result = await mysql.query('select * from users where email = ?', req.body.email);
+            if(result[0].length>0 && bcrypt.compareSync(req.body.password, result[0].password)) {
+                res.send(result[0]);
+            } else {
+                res.send({"auth":0});
+            }
         } else {
-            res.send({"error":"Password must be not null!"})
-        }    
+            throw new Error('Email and Password are not valid');
+        }
+    } catch (error) {
+        res.send(error)
+    }
+};
+
+exports.addUser = async (req, res) => {
+    const email = req.body.username;
+    const password = req.body.password;
+    try {
+        if(validationHelper.checkAuth(email, password)) {
+            let user = await module.exports.mySqlCreateUser(req.body);
+            res.send(user);
+        } else {
+            throw new Error('Email and Password are not valid');
+        }
     } catch (error) {
         console.log(error);
-        res.send({"error":"Password must be not null!"})
+        res.send(error);
     }    
 };
 
-exports.mySqlCreateUser = async function (jsonUser) {
+/**
++----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| id       | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name     | varchar(255) | NO   |     | NULL    |                |
+| username | varchar(255) | NO   |     | NULL    |                |
+| password | varchar(255) | NO   |     | NULL    |                |
+| role     | varchar(255) | NO   |     | NULL    |                |
+| question | varchar(255) | NO   |     | NULL    |                |
+| answer   | varchar(255) | NO   |     | NULL    |                |
++----------+--------------+------+-----+---------+----------------+
+ */
+exports.mySqlCreateUser = async (jsonUser) => {
+    const name = jsonUser.name;
+    const username = jsonUser.username;
+    const password = jsonUser.password;
+    const role = jsonUser.role.toLowerCase();
+    const question = jsonUser.question;
+    const answer = jsonUser.answer;
     try {
         jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
-        let result = await mysql.query('insert into users set ?', jsonUser);
-        return {"id":result.insertId}
+        const query = 'INSERT INTO users (name, username, password, role, question, answer) \
+                       VALUES (?, ?, ?, ?, ?, ?);';
+        const fieldValues = [name, username, password, role, question, answer];
+        const [rows, fields] = await mysql.query(query, fieldValues);
+        console.log('[ROWS]', rows);
+        return {"id" : rows.insertId};
     } catch (error) {
         throw error;
     }
