@@ -1,20 +1,13 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
-let connection = mysql.createConnection({
+let connectionPool = mysql.createPool({
   host     : 'localhost',
   user     : 'root',
-  password : '',
-  multipleStatements: true
+  password : 'root',
+  database : 'warehousemanager',
+  port     : 8889,
+  multipleStatements: true,
 });
-connection.connect();
-
-/*
-connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
-});
-*/
-
-//connection.end();
+const connection = connectionPool.promise();
 
 module.exports = connection;

@@ -1,51 +1,52 @@
 const mysql = require('../services/mysql');
 const bcrypt = require('bcryptjs');
+const validationHelper = require('../helpers/ValidationHelper');
 
-exports.users_list = function(req, res) {
-    mysql.query('select * from users', function(error, results, fields) {
-        if(error) res.send(error);
-        else res.send(results);
-    });
-};
-
-exports.users_auth = function(req, res) {
-    if(req.body.email.length > 0 && req.body.password.length > 0) {
-        try{
-            mysql.query('select * from users where email = ?', req.body.email, function(error, results, fields) {
-                if(error) res.send(error);
-                else {
-                    if(results.length>0 && bcrypt.compareSync(req.body.password, results[0].password)) {
-                        res.send(results);
-                    } else {
-                        res.send({"auth":0});
-                    }
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    } else {
-        res.send({"error":"Email and Password cant be null!"})
+exports.listUsers = async (req, res) => {
+    try {
+        let result = await mysql.query('select * from users');
+        res.send(result[0]);
+    } catch (error) {
+        res.send(error);
     }
 };
 
-exports.users_add = function(req, res) {
+exports.authenticateUser = async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
     try {
-        if(req.body.password.length>0) {
-            module.exports.mySqlcreateUser(req.body,function(r) {
-                res.send(r);
-            });
-            
+        if(validationHelper.checkAuth(email, password)) {
+            let result = await mysql.query('select * from users where email = ?', req.body.email);
+            if(result[0].length>0 && bcrypt.compareSync(req.body.password, result[0].password)) {
+                res.send(result[0]);
+            } else {
+                res.send({"auth":0});
+            }
         } else {
-            res.send({"error":"Password must be not null!"})
-        }    
+            throw new Error('Email and Password are not valid');
+        }
+    } catch (error) {
+        res.send(error)
+    }
+};
+
+exports.addUser = async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    try {
+        if(validationHelper.checkAuth(email, password)) {
+            let user = await module.exports.mySqlcreateUser(req.body);
+            res.send(r);
+        } else {
+            throw new Error('Email and Password are not valid');
+        }
     } catch (error) {
         console.log(error);
-        res.send({"error":"Password must be not null!"})
+        res.send(error)
     }    
 };
 
-exports.mySqlCreateUser = async function (jsonUser) {
+exports.mySqlCreateUser = async (jsonUser) => {
     try {
         jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
         let result = await mysql.query('insert into users set ?', jsonUser);

@@ -22,9 +22,9 @@ router.get('/productsorder', productsOrderController.products_order_list);
 router.post('/productsorder', productsOrderController.products_order_add);
 
 /* Users */
-router.get('/users', usersController.users_list);
-router.get('/users/auth', usersController.users_auth);
-router.post('/users', usersController.users_add);
+router.get('/users', usersController.listUsers);
+router.get('/users/auth', usersController.authenticateUser);
+router.post('/users', usersController.addUser);
 
 
 /* ####### SEED ############*/
