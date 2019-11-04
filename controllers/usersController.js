@@ -31,26 +31,49 @@ exports.authenticateUser = async (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-    const email = req.body.email;
+    const email = req.body.username;
     const password = req.body.password;
     try {
         if(validationHelper.checkAuth(email, password)) {
-            let user = await module.exports.mySqlcreateUser(req.body);
-            res.send(r);
+            let user = await module.exports.mySqlCreateUser(req.body);
+            res.send(user);
         } else {
             throw new Error('Email and Password are not valid');
         }
     } catch (error) {
         console.log(error);
-        res.send(error)
+        res.send(error);
     }    
 };
 
+/**
++----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| id       | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name     | varchar(255) | NO   |     | NULL    |                |
+| username | varchar(255) | NO   |     | NULL    |                |
+| password | varchar(255) | NO   |     | NULL    |                |
+| role     | varchar(255) | NO   |     | NULL    |                |
+| question | varchar(255) | NO   |     | NULL    |                |
+| answer   | varchar(255) | NO   |     | NULL    |                |
++----------+--------------+------+-----+---------+----------------+
+ */
 exports.mySqlCreateUser = async (jsonUser) => {
+    const name = jsonUser.name;
+    const username = jsonUser.username;
+    const password = jsonUser.password;
+    const role = jsonUser.role.toLowerCase();
+    const question = jsonUser.question;
+    const answer = jsonUser.answer;
     try {
         jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
-        let result = await mysql.query('insert into users set ?', jsonUser);
-        return {"id":result.insertId}
+        const query = 'INSERT INTO users (name, username, password, role, question, answer) \
+                       VALUES (?, ?, ?, ?, ?, ?);';
+        const fieldValues = [name, username, password, role, question, answer];
+        const [rows, fields] = await mysql.query(query, fieldValues);
+        console.log('[ROWS]', rows);
+        return {"id" : rows.insertId};
     } catch (error) {
         throw error;
     }
