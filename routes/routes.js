@@ -25,6 +25,8 @@ router.post('/productsorder', productsOrderController.products_order_add);
 router.get('/users', usersController.listUsers);
 router.get('/users/auth', usersController.authenticateUser);
 router.post('/users', usersController.addUser);
+router.put('/users', usersController.editUser);
+router.delete('/users', usersController.removeUser);
 
 /**
  * Basic authentication function.

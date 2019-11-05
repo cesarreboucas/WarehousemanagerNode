@@ -46,6 +46,33 @@ exports.addUser = async (req, res) => {
     }    
 };
 
+exports.editUser = async (req, res) => {
+    const username = req.body.username;
+    const role = req.body.role;
+
+    console.log('[EDIT]', `[USERNAME]=${username} | [ROLE]=${role}`);
+
+    const fieldValues = [role, username];
+    const query = 'UPDATE users SET role = ? \
+                   WHERE username = ?';
+    try {
+        let result = await mysql.query(query, fieldValues);
+        res.send({ user: result[0] });
+    } catch (error) {
+        res.send({ error });
+    }                   
+}
+
+exports.removeUser = async (req, res) => {
+    const username = req.body.username;
+    try {
+        const result = mysql.query('delete from users where username = ?', [username]);
+        res.send({ user_deleted: result[0] });
+    } catch (error) {
+        res.send({ error });
+    }
+}
+
 /**
 +----------+--------------+------+-----+---------+----------------+
 | Field    | Type         | Null | Key | Default | Extra          |
@@ -62,17 +89,16 @@ exports.addUser = async (req, res) => {
 exports.mySqlCreateUser = async (jsonUser) => {
     const name = jsonUser.name;
     const username = jsonUser.username;
-    const password = jsonUser.password;
+    let password = jsonUser.password;
     const role = jsonUser.role.toLowerCase();
     const question = jsonUser.question;
     const answer = jsonUser.answer;
     try {
-        jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
+        password = bcrypt.hashSync(password, 8);
         const query = 'INSERT INTO users (name, username, password, role, question, answer) \
                        VALUES (?, ?, ?, ?, ?, ?);';
         const fieldValues = [name, username, password, role, question, answer];
         const [rows, fields] = await mysql.query(query, fieldValues);
-        console.log('[ROWS]', rows);
         return {"id" : rows.insertId};
     } catch (error) {
         throw error;
