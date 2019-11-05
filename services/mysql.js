@@ -5,6 +5,7 @@ let connectionPool = mysql.createPool({
   user     : 'root',
   password : '',
   database : 'warehousemanager',
+  port     : 3306,
   multipleStatements: true,
 });
 const connection = connectionPool.promise();

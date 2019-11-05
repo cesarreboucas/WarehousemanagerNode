@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `ordertime` timestamp NOT NULL, 
   PRIMARY KEY (`id`), 
   FOREIGN KEY (user_id) REFERENCES users(id) 
-); 
+);
 CREATE TABLE IF NOT EXISTS `products_order` ( 
   `id` int NOT NULL AUTO_INCREMENT, 
   `order_id` int NOT NULL,  

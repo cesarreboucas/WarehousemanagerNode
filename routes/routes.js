@@ -4,6 +4,7 @@ const usersController = require('../controllers/usersController');
 const productsController = require('../controllers/productsController');
 const productsOrderController = require('../controllers/productsOrderController');
 const ordersController = require('../controllers/ordersController');
+const warehousesController = require('../controllers/warehousesController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -12,6 +13,10 @@ router.get('/', function(req, res) {
 /* Products. */
 router.get('/products', productsController.products_list);
 router.post('/products', productsController.products_add);
+
+/* Warehouses. */
+router.get('/warehouses', warehousesController.warehouse_list);
+router.post('/warehouses', warehousesController.warehouse_add);
 
 /* Orders */
 router.get('/orders', ordersController.orders_list);
@@ -66,6 +71,7 @@ router.get('/seed', async (req, res, next) => {
         let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
         let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
         let seedProducts = fs.readFileSync("./data/seedProducts.json","utf8");
+        let seedWarehouses = fs.readFileSync("./data/seedWarehouses.json","utf8");
 
         console.log("Start Creating Users");
         const users = JSON.parse(usersContent);    
@@ -84,12 +90,20 @@ router.get('/seed', async (req, res, next) => {
         await productsorder.forEach(async productsorder => {
             await productsOrderController.mySqlCreateProductsOrder(productsorder);
         });
-        console.log("Strt Creating Products");
+
+        console.log("Start Creating Products");
         const products = JSON.parse(seedProducts);  
         await products.forEach(async product => {
             await productsController.productsSave(product);           
         });
-        res.send({seed: "ok"});
+
+        console.log("Start Creating Warehouses");
+        const warehouses = JSON.parse(seedWarehouses);  
+        await warehouses.forEach(async wh => {
+            await warehousesController.warehouseSave(wh);           
+        });
+
+        res.send({"seed":1});
     } catch (error) {
         console.log(error);
     }
