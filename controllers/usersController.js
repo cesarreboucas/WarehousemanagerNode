@@ -62,17 +62,17 @@ exports.addUser = async (req, res) => {
 exports.mySqlCreateUser = async (jsonUser) => {
     const name = jsonUser.name;
     const username = jsonUser.username;
-    const password = jsonUser.password;
+    let password = jsonUser.password;
     const role = jsonUser.role.toLowerCase();
     const question = jsonUser.question;
     const answer = jsonUser.answer;
     try {
-        jsonUser.password = bcrypt.hashSync(jsonUser.password, 8);
+        password = await bcrypt.hashSync(password, 8);
         const query = 'INSERT INTO users (name, username, password, role, question, answer) \
                        VALUES (?, ?, ?, ?, ?, ?);';
         const fieldValues = [name, username, password, role, question, answer];
         const [rows, fields] = await mysql.query(query, fieldValues);
-        console.log('[ROWS]', rows);
+        //console.log('[ROWS]', rows);
         return {"id" : rows.insertId};
     } catch (error) {
         throw error;

@@ -4,6 +4,7 @@ const usersController = require('../controllers/usersController');
 const productsController = require('../controllers/productsController');
 const productsOrderController = require('../controllers/productsOrderController');
 const ordersController = require('../controllers/ordersController');
+const warehousesController = require('../controllers/warehousesController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -12,6 +13,10 @@ router.get('/', function(req, res) {
 /* Products. */
 router.get('/products', productsController.products_list);
 router.post('/products', productsController.products_add);
+
+/* Warehouses. */
+router.get('/warehouses', warehousesController.warehouse_list);
+router.post('/warehouses', warehousesController.warehouse_add);
 
 /* Orders */
 router.get('/orders', ordersController.orders_list);
