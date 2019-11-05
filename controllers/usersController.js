@@ -33,6 +33,7 @@ exports.authenticateUser = async (req, res) => {
 exports.addUser = async (req, res) => {
     const email = req.body.username;
     const password = req.body.password;
+    console.log('[EDIT]', `[USERNAME]=${email} | [ROLE]=${password}`);
     try {
         if(validationHelper.checkAuth(email, password)) {
             let user = await module.exports.mySqlCreateUser(req.body);
@@ -42,7 +43,7 @@ exports.addUser = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.send(error);
+        res.status(400).send(error);
     }    
 };
 
