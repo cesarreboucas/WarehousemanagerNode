@@ -37,7 +37,7 @@ exports.orders_list = function(req, res) {
                     orders.push(e);
                     orders[orders.length-1].products = new Array();
                     orders[orders.length-1].products.push(product);
-                    console.log(e);
+                    //console.log(e);
                     previous = e.id;
                 } else {
                     orders[orders.length-1].products.push(product);

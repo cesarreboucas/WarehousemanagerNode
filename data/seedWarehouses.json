@@ -1,0 +1,26 @@
+[
+    {
+    "workerCount": 0,
+    "workerList": [],
+    "location": "49.1842155,-122.8445902",
+    "capacity": 100,
+    "productList": [],
+    "name": "SurreyDC"
+    },
+    {
+    "productList": [],
+    "name": "NewWestDC",
+    "workerCount": 0,
+    "workerList": [],
+    "location": "49.2035716,-122.9148781",
+    "capacity": 0
+    },
+    {
+    "location": "49.2791661,-123.128335",
+    "capacity": 0,
+    "productList": [],
+    "name": "VancouverDC",
+    "workerCount": 0,
+    "workerList": []
+    }
+]
