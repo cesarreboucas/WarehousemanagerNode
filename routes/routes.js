@@ -69,27 +69,17 @@ router.get('/seed', async (req, res, next) => {
     try {
         let result = await mysql.query(databaseSeed);
         let usersContent = fs.readFileSync("./data/seedUsers.json","utf8");
-        let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
-        let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
+        //let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
+        //let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
         let seedProducts = fs.readFileSync("./data/seedProducts.json","utf8");
         let seedWarehouses = fs.readFileSync("./data/seedWarehouses.json","utf8");
+
+        //res.send("AA"+Math.floor(Math.random() * 10));
 
         console.log("Start Creating Users");
         const users = JSON.parse(usersContent);    
         await users.forEach(async user => {
             await usersController.mySqlCreateUser(user);
-        });
-
-        console.log("Start Creating Orders");
-        const orders = JSON.parse(ordersContent);  
-        await orders.forEach(async order => {
-            await ordersController.mySqlCreateOrders(order)                
-        });
-        
-        console.log("Start Creating ProductsOrders");
-        const productsorder = JSON.parse(productOrdersContent);  
-        await productsorder.forEach(async productsorder => {
-            await productsOrderController.mySqlCreateProductsOrder(productsorder);
         });
 
         console.log("Start Creating Products");
@@ -103,7 +93,56 @@ router.get('/seed', async (req, res, next) => {
         await warehouses.forEach(async wh => {
             await warehousesController.warehouseSave(wh);           
         });
+        
+        let numOrders = Math.floor(Math.random() * 15) + 5; // 5~20
+        console.log("Creating "+numOrders+" orders");
+        for(let i=0; i<numOrders; ++i) {
+            // Ceil because MySQL id starts from 1
+            let user_id = Math.ceil(Math.random() * users.length); 
+            let warehouse_key = warehouses[Math.floor(Math.random() * warehouses.length)].name;
+            let ordertime = new Date(new Date().getTime() - Math.floor(Math.random() * 15 * 86400000));
+            let order = {
+                "user_id": user_id,
+                "warehouse_key": warehouse_key,
+                "ordertime": ordertime
+            };
 
+            let order_id = await ordersController.mySqlCreateOrders(order);
+
+            let numProducts = Math.floor(Math.random() * 5) + 1; // 1~5
+            for(let x=0; x < numProducts; ++x) {
+                let product_index = Math.floor(Math.random() * products.length);
+                let productOrder = {
+                    "order_id": order_id.id,
+                    "product_key": products[product_index].barcode,
+                    "quantity":Math.ceil(Math.random() * 3),
+                    "cost":products[product_index].cost,
+                    "sale_price":products[product_index].sale_price
+                };
+                await productsOrderController.mySqlCreateProductsOrder(productOrder);
+            }
+
+            
+        }
+
+        /*
+        console.log("Start Creating Orders");
+        const orders = JSON.parse(ordersContent);  
+        await orders.forEach(async order => {
+            await ordersController.mySqlCreateOrders(order)                
+        });
+        */
+        /*
+        console.log("Start Creating ProductsOrders");
+        const productsorder = JSON.parse(productOrdersContent);  
+        await productsorder.forEach(async productsorder => {
+            await productsOrderController.mySqlCreateProductsOrder(productsorder);
+        });
+        */
+        
+        /*
+        
+        */
         res.send({"seed":1});
     } catch (error) {
         console.log(error);
