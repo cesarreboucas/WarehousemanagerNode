@@ -65,7 +65,7 @@ exports.orders_add = function(req, res) {
 exports.mySqlCreateOrders = async function(jsonOrder) {
     try {
         let result = await mysql.query('insert into orders set ?', jsonOrder);
-        return {"id":result.insertId};
+        return {"id":result[0].insertId};
     } catch (error) {
         throw error;
     }

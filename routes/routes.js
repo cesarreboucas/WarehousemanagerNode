@@ -77,38 +77,51 @@ router.get('/seed', async (req, res, next) => {
 
         console.log("Start Creating Users");
         const users = JSON.parse(usersContent);    
-        //await users.forEach(async user => {
-            //await usersController.mySqlCreateUser(user);
-        //});
+        await users.forEach(async user => {
+            await usersController.mySqlCreateUser(user);
+        });
 
         console.log("Start Creating Products");
         const products = JSON.parse(seedProducts);  
-        //await products.forEach(async product => {
-            //await productsController.productsSave(product);           
-        //});
+        await products.forEach(async product => {
+            await productsController.productsSave(product);           
+        });
 
         console.log("Start Creating Warehouses");
         const warehouses = JSON.parse(seedWarehouses);  
-        //await warehouses.forEach(async wh => {
-            //await warehousesController.warehouseSave(wh);           
-        //});
+        await warehouses.forEach(async wh => {
+            await warehousesController.warehouseSave(wh);           
+        });
         
         let numOrders = Math.floor(Math.random() * 15) + 5; // 5~20
-        
         console.log("Creating "+numOrders+" orders");
         for(let i=0; i<numOrders; ++i) {
             // Ceil because MySQL id starts from 1
             let user_id = Math.ceil(Math.random() * users.length); 
             let warehouse_key = warehouses[Math.floor(Math.random() * warehouses.length)].name;
             let ordertime = new Date(new Date().getTime() - Math.floor(Math.random() * 15 * 86400000));
-            //let ordertime = new Date().getTime();
             let order = {
                 "user_id": user_id,
                 "warehouse_key": warehouse_key,
                 "ordertime": ordertime
             };
+
             let order_id = await ordersController.mySqlCreateOrders(order);
-            console.log(order);
+
+            let numProducts = Math.floor(Math.random() * 5) + 1; // 1~5
+            for(let x=0; x < numProducts; ++x) {
+                let product_index = Math.floor(Math.random() * products.length);
+                let productOrder = {
+                    "order_id": order_id.id,
+                    "product_key": products[product_index].barcode,
+                    "quantity":Math.ceil(Math.random() * 3),
+                    "cost":products[product_index].cost,
+                    "sale_price":products[product_index].sale_price
+                };
+                await productsOrderController.mySqlCreateProductsOrder(productOrder);
+            }
+
+            
         }
 
         /*
