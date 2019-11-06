@@ -8,7 +8,7 @@ exports.orders_list = function(req, res) {
         limit = 25;
     }
 
-    mysql.query('select o.id, o.user_id, o.warehouse_id, o.ordertime, po.product_id,\
+    mysql.query('select o.id, o.user_id, o.warehouse_key, o.ordertime, po.product_key,\
              po.quantity, po.cost, po.sale_price \
              from orders o \
              inner join products_order po on o.id=po.order_id \
@@ -21,7 +21,7 @@ exports.orders_list = function(req, res) {
             let previous = 0;
             results.forEach(e => {
                 let product = {
-                    "id": e.product_id,
+                    "id": e.product_key,
                     "quantity": e.quantity,
                     "sale_price": e.sale_price,
                     "cost": e.cost,
@@ -29,7 +29,7 @@ exports.orders_list = function(req, res) {
                 };
 
                 if(previous!=e.id) {
-                    delete e.product_id;
+                    delete e.product_key;
                     delete e.quantity;
                     delete e.sale_price;
                     delete e.cost;
