@@ -12,27 +12,35 @@ exports.listUsers = async (req, res) => {
 };
 
 exports.authenticateUser = async (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
     try {
-        if(validationHelper.checkAuth(email, password)) {
-            let result = await mysql.query('select * from users where email = ?', req.body.email);
-            if(result[0].length>0 && bcrypt.compareSync(req.body.password, result[0].password)) {
-                res.send(result[0]);
-            } else {
-                res.send({"auth":0});
-            }
+        let user = await module.exports.checkUser(req.body);
+        console.log(user != null);
+        if(user != null) {
+            res.send(user);
         } else {
-            throw new Error('Email and Password are not valid');
+            res.status(401).send({"auth":0});
         }
     } catch (error) {
-        res.send(error)
+        res.status(401).send(error)
     }
 };
+
+exports.checkUser = async (user) => {
+    try {
+        let [rows, columns] = await mysql.query('select * from users where username = ?', [user.username]);
+        if(bcrypt.compareSync(user.password, rows[0].password)) {
+            return rows[0];
+        }
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
 
 exports.addUser = async (req, res) => {
     const email = req.body.username;
     const password = req.body.password;
+    console.log('[EDIT]', `[USERNAME]=${email} | [ROLE]=${password}`);
     try {
         if(validationHelper.checkAuth(email, password)) {
             let user = await module.exports.mySqlCreateUser(req.body);
@@ -42,7 +50,7 @@ exports.addUser = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.send(error);
+        res.status(400).send(error);
     }    
 };
 

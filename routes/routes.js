@@ -27,11 +27,11 @@ router.get('/productsorder', productsOrderController.products_order_list);
 router.post('/productsorder', productsOrderController.products_order_add);
 
 /* Users */
-router.get('/users', usersController.listUsers);
-router.get('/users/auth', usersController.authenticateUser);
-router.post('/users', usersController.addUser);
-router.put('/users', usersController.editUser);
-router.delete('/users', usersController.removeUser);
+router.post('/users/auth', usersController.authenticateUser);
+router.get('/users', basicAuth, usersController.listUsers);
+router.post('/users', basicAuth , usersController.addUser);
+router.put('/users', basicAuth, usersController.editUser);
+router.delete('/users', basicAuth, usersController.removeUser);
 
 /**
  * Basic authentication function.
@@ -42,14 +42,15 @@ router.delete('/users', usersController.removeUser);
 async function basicAuth(req, res, next) {
     // check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+        console.log('[UNAITHORIZED]');
         return res.status(401).json({ message: 'Missing Authorization Header' });
     }
 
     // verify auth credentials
-    const base64Credentials =  req.headers.authorization.split(' ')[1];
+    const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
-    const user = await userService.authenticate({ username, password });
+    const user = await usersController.checkUser({ username, password });
     if (!user) {
         return res.status(401).json({ message: 'Invalid Authentication Credentials' });
     }

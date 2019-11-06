@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `role` varchar(255) NOT NULL, 
   `question` varchar(255) NOT NULL, 
   `answer` varchar(255) NOT NULL, 
-  PRIMARY KEY (`id`) 
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`username`)
 ); 
 CREATE TABLE IF NOT EXISTS `orders` ( 
   `id` int NOT NULL AUTO_INCREMENT, 
