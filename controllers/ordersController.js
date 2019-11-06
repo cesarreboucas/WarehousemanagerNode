@@ -12,8 +12,7 @@ exports.orders_list = function(req, res) {
              po.quantity, po.cost, po.sale_price \
              from orders o \
              inner join products_order po on o.id=po.order_id \
-             where o.ordertime > (NOW() - INTERVAL 15 DAY) \
-             order by o.id;',
+             order by o.ordertime desc;',
         function(error, results, fields) {
         let orders = new Array();
         if(error) res.send(error);
