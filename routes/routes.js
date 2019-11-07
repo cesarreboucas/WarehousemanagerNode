@@ -5,6 +5,7 @@ const productsController = require('../controllers/productsController');
 const productsOrderController = require('../controllers/productsOrderController');
 const ordersController = require('../controllers/ordersController');
 const warehousesController = require('../controllers/warehousesController');
+const reportsController = require('../controllers/reportsController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -21,6 +22,9 @@ router.post('/warehouses', warehousesController.warehouse_add);
 /* Orders */
 router.get('/orders', ordersController.orders_list);
 router.post('/orders', ordersController.orders_add);
+
+/* Reports */
+router.get('/reports', reportsController.reports_list);
 
 /* ProductsOrder */
 router.get('/productsorder', productsOrderController.products_order_list);
