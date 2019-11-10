@@ -4,16 +4,11 @@ const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.product_
                 from orders o \
                 inner join products_order po on o.id=po.order_id ';
 
-exports.ordersList = function(req, res) {
-    mysql.query(query + 'order by o.ordertime desc;',
-        function(error, mysqlorders, fields) {
-            if(error) res.send(error);
-            else {
-                let orders = MysqltoJson(mysqlorders);
-                res.send(orders);
-            }
-        }
-    );
+exports.ordersList = async function(req, res) {
+    console.log("aaaaaaaaaa");
+    let mysqlorders = await mysql.query(query + 'order by o.ordertime desc;');
+    let orders = MysqltoJson(mysqlorders[0]);
+    res.send(orders);
 };
 
 exports.ordersListUndone = async function() {
@@ -21,7 +16,7 @@ exports.ordersListUndone = async function() {
     return mysqlorders[0];
 }
 
-exports.ordersList = async function() {
+exports.ordersListAll = async function() {
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
 }

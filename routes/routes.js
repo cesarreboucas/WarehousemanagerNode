@@ -6,7 +6,7 @@ const productsOrderController = require('../controllers/productsOrderController'
 const ordersController = require('../controllers/ordersController');
 const warehousesController = require('../controllers/warehousesController');
 const reportsController = require('../controllers/reportsController');
-const ProdTransactionsController = require('../controllers/prodTransactions');
+const ProdTransactionsController = require('../controllers/prodTransactionsController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
