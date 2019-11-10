@@ -68,22 +68,14 @@ exports.productsHangs = async function(req, res) {
         });
 
         if(index == -1) {
-            hangs.push(getDefaultHangObj(transaction, transaction.warehouse_sender));
+            hangs.push(getDefaultHangObj(transaction, transaction.warehouse_receiver));
             index = (hangs.length -1);
-            //Inserting the receiver Warehouse
-            hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_receiver));
-        } else {
-            //Looking for the wh sender.
-            whSenderIndex = hangs[index].warehouses.findIndex(function(e) {
-                if(e.warehouse_key==transaction.warehouse_sender) {
-                    return e;
-                }
-            });
-            if(whSenderIndex == -1) {
+            //Inserting the sender Warehouse (if exists)
+            if(transaction.warehouse_sender!==undefined && transaction.warehouse_sender!="") {
                 hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_sender));
-                whSenderIndex = (hangs[index].warehouses.length -1);
             }
-
+            
+        } else {
             //Looking for the Receiver
             whReceiverIndex = hangs[index].warehouses.findIndex(function(e) {
                 if(e.warehouse_key==transaction.warehouse_receiver) {
@@ -93,19 +85,33 @@ exports.productsHangs = async function(req, res) {
             if(whReceiverIndex == -1) {
                 hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_receiver));
                 whReceiverIndex = (hangs[index].warehouses.length -1);
-            }
-
-            if(transaction.sent) {
-                hangs[index].warehouses[whSenderIndex].quantity_in_stock -= transaction.quantity;
-            } else {
-                hangs[index].warehouses[whSenderIndex].quantity_future_movs -= transaction.quantity;
-            }
+            }          
 
             if(transaction.received) {
                 hangs[index].warehouses[whReceiverIndex].quantity_in_stock += transaction.quantity;
             } else {
                 hangs[index].warehouses[whReceiverIndex].quantity_future_movs += transaction.quantity;
             }
+
+            //Looking for the wh sender.
+            if(transaction.warehouse_sender!==undefined && transaction.warehouse_sender!="") {
+                whSenderIndex = hangs[index].warehouses.findIndex(function(e) {
+                    if(e.warehouse_key==transaction.warehouse_sender) {
+                        return e;
+                    }
+                });
+                if(whSenderIndex == -1) {
+                    hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_sender));
+                    whSenderIndex = (hangs[index].warehouses.length -1);
+                }
+    
+                if(transaction.sent) {
+                    hangs[index].warehouses[whSenderIndex].quantity_in_stock -= transaction.quantity;
+                } else {
+                    hangs[index].warehouses[whSenderIndex].quantity_future_movs -= transaction.quantity;
+                }
+            }
+            
 
         }
 

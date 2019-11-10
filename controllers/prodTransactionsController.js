@@ -15,3 +15,13 @@ exports.getTransactions = async function() {
     }
     return prodTransactions;
 }
+
+exports.addTransaction = async function(req, res) {
+    let transaction = await firestore.collection('prodTransactions').add(req.body);
+    res.send({"id" : transaction.id});
+}
+
+exports.editTransaction = async function(req, res) {
+    let transaction = await firestore.doc('prodTransactions/'+req.body.id).update(req.body);
+    res.send({"id" : transaction.id});
+}

@@ -5,7 +5,6 @@ const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.product_
                 inner join products_order po on o.id=po.order_id ';
 
 exports.ordersList = async function(req, res) {
-    console.log("aaaaaaaaaa");
     let mysqlorders = await mysql.query(query + 'order by o.ordertime desc;');
     let orders = MysqltoJson(mysqlorders[0]);
     res.send(orders);
@@ -16,7 +15,7 @@ exports.ordersListUndone = async function() {
     return mysqlorders[0];
 }
 
-exports.ordersListAll = async function() {
+exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
 }

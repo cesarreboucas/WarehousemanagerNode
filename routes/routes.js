@@ -28,6 +28,8 @@ router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */
 router.get('/prodtransactions', ProdTransactionsController.prodTransactionsList);
+router.post('/prodtransactions', ProdTransactionsController.addTransaction);
+router.put('/prodtransactions', ProdTransactionsController.editTransaction);
 
 /* Reports */
 router.get('/reports', reportsController.reports_list);
@@ -136,25 +138,6 @@ router.get('/seed', async (req, res, next) => {
 
             
         }
-
-        /*
-        console.log("Start Creating Orders");
-        const orders = JSON.parse(ordersContent);  
-        await orders.forEach(async order => {
-            await ordersController.mySqlCreateOrders(order)                
-        });
-        */
-        /*
-        console.log("Start Creating ProductsOrders");
-        const productsorder = JSON.parse(productOrdersContent);  
-        await productsorder.forEach(async productsorder => {
-            await productsOrderController.mySqlCreateProductsOrder(productsorder);
-        });
-        */
-        
-        /*
-        
-        */
         res.send({"seed":1});
     } catch (error) {
         console.log(error);
