@@ -21,6 +21,11 @@ exports.ordersListUndone = async function() {
     return mysqlorders[0];
 }
 
+exports.ordersList = async function() {
+    let mysqlorders = await mysql.query(query + ';');
+    return mysqlorders[0];
+}
+
 exports.ordersAdd = function(req, res) {
     
     try {

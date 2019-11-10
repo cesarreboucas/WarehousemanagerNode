@@ -17,13 +17,15 @@ exports.products_list = function(req, res) {
 
 exports.productsHangs = async function(req, res) {
     const ordersController = require('../controllers/ordersController');
-    //res.send("undoneOrders");
-    let undoneOrders = await ordersController.ordersListUndone();
+    
+    // Getting All Orders
+    let allOrders = await ordersController.ordersList();
     let hangs = new Array();
-    undoneOrders.forEach(prod => {  
-      
+    console.log(allOrders[0]);
+    allOrders.forEach(prod => {  
+        let whIndex = 0; // Default warehouse Index.
         let index = hangs.findIndex(function(e) {
-            if(e!==undefined && e.product_key==prod.product_key) {
+            if(e.product_key==prod.product_key) {
                 return e;
             }
         });
@@ -35,26 +37,38 @@ exports.productsHangs = async function(req, res) {
             hang.warehouses = new Array();
             hang.warehouses.push(new Object());
             hang.warehouses[0].warehouse_key = prod.warehouse_key;
-            hang.warehouses[0].quantity = prod.quantity;
-            hangs.push(hang);   
+            hang.warehouses[0].quantity_sold = 0;
+            hang.warehouses[0].quantity_in_stock = 0;
+            hang.warehouses[0].quantity_compromised = 0;
+            hangs.push(hang);
+            index = (hangs.length -1);
         } else {
-            let whIndex = hangs[index].warehouses.findIndex(function(e) {
+             whIndex = hangs[index].warehouses.findIndex(function(e) {
                 if(e.warehouse_key==prod.warehouse_key) {
                     return e;
                 }
             });
 
             if(whIndex == -1) {
-                let wh = {"warehouse_key": prod.warehouse_key, "quantity":prod.quantity};
+                let wh = {"warehouse_key": prod.warehouse_key,
+                    "quantity_sold":0,
+                    "quantity_in_stock":0,
+                    "quantity_compromised":0
+                };
                 hangs[index].warehouses.push(wh);
-            } else {
-                hangs[index].warehouses[whIndex].quantity += prod.quantity;
+                whIndex = (hangs[index].warehouses.length -1);
             }
         }
-
         
+        if(prod.done==1) { // Done
+            hangs[index].warehouses[whIndex].quantity_in_stock -= prod.quantity;
+        } else if(prod.ready==1) { //Ready but not done.
+            hangs[index].warehouses[whIndex].quantity_compromised -= prod.quantity;
+        } else { // Not done, not ready.
+            hangs[index].warehouses[whIndex].quantity_sold -= prod.quantity;
+        }
+
     });
-    
     res.send(hangs);
 }
 
@@ -85,5 +99,3 @@ exports.productsSave = async function(jsonProduct) {
         throw error;
     }
 }
-
- 
