@@ -6,6 +6,7 @@ const productsOrderController = require('../controllers/productsOrderController'
 const ordersController = require('../controllers/ordersController');
 const warehousesController = require('../controllers/warehousesController');
 const reportsController = require('../controllers/reportsController');
+const ProdTransactionsController = require('../controllers/prodTransactionsController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -13,6 +14,8 @@ router.get('/', function(req, res) {
 
 /* Products. */
 router.get('/products', productsController.products_list);
+router.get('/products/quantitys/', productsController.products_quantitys); // barcode needed
+router.get('/products/hangs/', productsController.productsHangs);
 router.post('/products', productsController.products_add);
 
 /* Warehouses. */
@@ -20,8 +23,13 @@ router.get('/warehouses', warehousesController.warehouse_list);
 router.post('/warehouses', warehousesController.warehouse_add);
 
 /* Orders */
-router.get('/orders', ordersController.orders_list);
-router.post('/orders', ordersController.orders_add);
+router.get('/orders', ordersController.ordersList);
+router.post('/orders', ordersController.ordersAdd);
+
+/* ProdTransactions */
+router.get('/prodtransactions', ProdTransactionsController.prodTransactionsList);
+router.post('/prodtransactions', ProdTransactionsController.addTransaction);
+router.put('/prodtransactions', ProdTransactionsController.editTransaction);
 
 /* Reports */
 router.get('/reports', reportsController.reports_list);
@@ -110,6 +118,7 @@ router.get('/seed', async (req, res, next) => {
                 "warehouse_key": warehouse_key,
                 "ordertime": ordertime
             };
+            console.log(order);
 
             let order_id = await ordersController.mySqlCreateOrders(order);
 
@@ -119,6 +128,7 @@ router.get('/seed', async (req, res, next) => {
                 let productOrder = {
                     "order_id": order_id.id,
                     "product_key": products[product_index].barcode,
+                    "product_name": products[product_index].name,
                     "quantity":Math.ceil(Math.random() * 3),
                     "cost":products[product_index].cost,
                     "sale_price":products[product_index].sale_price
@@ -128,25 +138,6 @@ router.get('/seed', async (req, res, next) => {
 
             
         }
-
-        /*
-        console.log("Start Creating Orders");
-        const orders = JSON.parse(ordersContent);  
-        await orders.forEach(async order => {
-            await ordersController.mySqlCreateOrders(order)                
-        });
-        */
-        /*
-        console.log("Start Creating ProductsOrders");
-        const productsorder = JSON.parse(productOrdersContent);  
-        await productsorder.forEach(async productsorder => {
-            await productsOrderController.mySqlCreateProductsOrder(productsorder);
-        });
-        */
-        
-        /*
-        
-        */
         res.send({"seed":1});
     } catch (error) {
         console.log(error);
@@ -154,6 +145,8 @@ router.get('/seed', async (req, res, next) => {
 });
 
 module.exports = router;
+
+
 
 
 
