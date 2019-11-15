@@ -14,7 +14,6 @@ router.get('/', function(req, res) {
 
 /* Products. */
 router.get('/products', productsController.products_list);
-router.get('/products/quantitys/', productsController.products_quantitys); // barcode needed
 router.get('/products/hangs/', productsController.productsHangs);
 router.post('/products', productsController.products_add);
 
@@ -118,7 +117,7 @@ router.get('/seed', async (req, res, next) => {
                 "warehouse_key": warehouse_key,
                 "ordertime": ordertime
             };
-            console.log(order);
+            //console.log(order);
 
             let order_id = await ordersController.mySqlCreateOrders(order);
 
@@ -127,8 +126,8 @@ router.get('/seed', async (req, res, next) => {
                 let product_index = Math.floor(Math.random() * products.length);
                 let productOrder = {
                     "order_id": order_id.id,
-                    "product_key": products[product_index].barcode,
-                    "product_name": products[product_index].name,
+                    "barcode": products[product_index].barcode,
+                    "name": products[product_index].name,
                     "quantity":Math.ceil(Math.random() * 3),
                     "cost":products[product_index].cost,
                     "sale_price":products[product_index].sale_price

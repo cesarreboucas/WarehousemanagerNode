@@ -138,14 +138,6 @@ function getDefaultWaregouseHangObj(warehouse_key) {
     }; 
 }
 
-exports.products_quantitys = async function(req, res) {
-    if(req.query.barcode===undefined) {
-        res.send("Pleas fill the \"barcode\"");
-    }
-    //TODO
-    res.send("TODO!");
-}
-
 exports.products_add = async function(req, res) {
     try {
         if(req.body.barcode && req.body.barcode.length>0) {
