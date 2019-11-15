@@ -7,7 +7,7 @@ exports.listUsers = async (req, res) => {
         let result = await mysql.query('select * from users');
         res.send(result[0]);
     } catch (error) {
-        res.send(error);
+        res.status(500).send(error.message);
     }
 };
 
@@ -21,7 +21,7 @@ exports.authenticateUser = async (req, res) => {
             res.status(401).send({"auth":0});
         }
     } catch (error) {
-        res.status(401).send(error)
+        res.status(500).send(error.message);
     }
 };
 
@@ -46,11 +46,11 @@ exports.addUser = async (req, res) => {
             let user = await module.exports.mySqlCreateUser(req.body);
             res.send(user);
         } else {
-            throw new Error('Email and Password are not valid');
+            res.status(400).send('Email and Password are not valid');
         }
     } catch (error) {
         console.log(error);
-        res.status(400).send(error);
+        res.status(500).send(error.message);
     }    
 };
 
@@ -65,20 +65,29 @@ exports.editUser = async (req, res) => {
                    WHERE username = ?';
     try {
         let result = await mysql.query(query, fieldValues);
-        res.send({ user: result[0] });
+        res.send();
     } catch (error) {
-        res.send({ error });
+        res.status(500).send(error.message);
     }                   
 }
 
 exports.forgotPassword = async (req, res) => {
-    const username  = req.body.username;
-    const question  = req.body.question;
-    const answer    = req.body.answer;
-    const [rows, columns] = await mysql.query("SELECT * FROM users WHERE username = ?", [username]);
-    const user = rows[0];
-    if(question == user.question && answer == user.answer) {
-        
+    try {
+        const username  = req.body.username;
+        const password  = req.body.password;
+        const question  = req.body.question;
+        const answer    = req.body.answer;
+        const [rows, columns] = await mysql.query("SELECT * FROM users WHERE username = ?", [username]);
+        const user = rows[0];
+        if(question === user.question && answer === user.answer) {
+            const hashPassword = bcrypt.hashSync(password, 8);
+            await mysql.query('UPDATE users SET password = ? WHERE username = ?', [hashPassword, username]);
+            res.send();
+        } else {
+            res.status(400).send('Quesntions or answer is wrong');
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 }
 
@@ -88,7 +97,7 @@ exports.removeUser = async (req, res) => {
         const result = mysql.query('delete from users where username = ?', [username]);
         res.send({ user_deleted: result[0] });
     } catch (error) {
-        res.send({ error });
+        res.status(500).send(error.message);
     }
 }
 
