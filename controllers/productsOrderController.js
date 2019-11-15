@@ -24,8 +24,8 @@ exports.mySqlCreateProductsOrder = async function(jsonProductsOrder) {
     try {
         let product = {
             "order_id": jsonProductsOrder.order_id,
-            "product_key": jsonProductsOrder.barcode,
-            "product_name": jsonProductsOrder.name,
+            "barcode": jsonProductsOrder.barcode,
+            "name": jsonProductsOrder.name,
             "quantity": jsonProductsOrder.quantity,
             "cost": jsonProductsOrder.cost,
             "sale_price": jsonProductsOrder.sale_price

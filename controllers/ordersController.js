@@ -1,21 +1,16 @@
 const mysql = require('../services/mysql');
 const productsOrderController = require('../controllers/productsOrderController');
 
-const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.product_key,\
-                po.product_name, po.quantity, po.cost, po.sale_price, o.done, o.ready \
+const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.barcode,\
+                po.name, po.quantity, po.cost, po.sale_price, o.done, o.ready \
                 from orders o \
                 inner join products_order po on o.id=po.order_id ';
 
 exports.ordersList = async function(req, res) {
-    let mysqlorders = await mysql.query(query + 'order by o.ordertime desc;');
+    let mysqlorders = await mysql.query(query + 'where o.done=0 order by o.ordertime desc;');
     let orders = MysqltoJson(mysqlorders[0]);
     res.send(orders);
 };
-
-exports.ordersListUndone = async function() {
-    let mysqlorders = await mysql.query(query + 'where o.done=0 order by po.product_key;');
-    return mysqlorders[0];
-}
 
 exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
@@ -58,8 +53,8 @@ function MysqltoJson(results) {
     let orders = new Array();
     results.forEach(e => {
         let product = {
-            "product_key": e.product_key,
-            "product_name": e.product_name,
+            "barcode": e.barcode,
+            "name": e.name,
             "quantity": e.quantity,
             "sale_price": e.sale_price,
             "cost": e.cost,
@@ -67,8 +62,8 @@ function MysqltoJson(results) {
         };
 
         if(previous!=e.id) {
-            delete e.product_key;
-            delete e.product_name;
+            delete e.barcode;
+            delete e.name;
             delete e.quantity;
             delete e.sale_price;
             delete e.cost;

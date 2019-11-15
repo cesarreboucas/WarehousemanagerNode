@@ -6,7 +6,7 @@ const productsOrderController = require('../controllers/productsOrderController'
 const ordersController = require('../controllers/ordersController');
 const warehousesController = require('../controllers/warehousesController');
 const reportsController = require('../controllers/reportsController');
-const ProdTransactionsController = require('../controllers/prodTransactionsController');
+const movOrdersController = require('../controllers/movementOrderController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -26,9 +26,9 @@ router.get('/orders', ordersController.ordersList);
 router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */
-router.get('/prodtransactions', ProdTransactionsController.prodTransactionsList);
-router.post('/prodtransactions', ProdTransactionsController.addTransaction);
-router.put('/prodtransactions', ProdTransactionsController.editTransaction);
+router.get('/movorders', movOrdersController.movOrderList);
+router.post('/movorders', movOrdersController.addMovOrder);
+router.put('/movorders', movOrdersController.editMovOrder);
 
 /* Reports */
 router.get('/reports', reportsController.reports_list);
