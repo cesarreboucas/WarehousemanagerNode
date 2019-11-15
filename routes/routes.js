@@ -5,6 +5,8 @@ const productsController = require('../controllers/productsController');
 const productsOrderController = require('../controllers/productsOrderController');
 const ordersController = require('../controllers/ordersController');
 const warehousesController = require('../controllers/warehousesController');
+const reportsController = require('../controllers/reportsController');
+const ProdTransactionsController = require('../controllers/prodTransactionsController');
 
 router.get('/', function(req, res) {
     res.send({"working":1});
@@ -12,6 +14,8 @@ router.get('/', function(req, res) {
 
 /* Products. */
 router.get('/products', productsController.products_list);
+router.get('/products/quantitys/', productsController.products_quantitys); // barcode needed
+router.get('/products/hangs/', productsController.productsHangs);
 router.post('/products', productsController.products_add);
 
 /* Warehouses. */
@@ -19,8 +23,16 @@ router.get('/warehouses', warehousesController.warehouse_list);
 router.post('/warehouses', warehousesController.warehouse_add);
 
 /* Orders */
-router.get('/orders', ordersController.orders_list);
-router.post('/orders', ordersController.orders_add);
+router.get('/orders', ordersController.ordersList);
+router.post('/orders', ordersController.ordersAdd);
+
+/* ProdTransactions */
+router.get('/prodtransactions', ProdTransactionsController.prodTransactionsList);
+router.post('/prodtransactions', ProdTransactionsController.addTransaction);
+router.put('/prodtransactions', ProdTransactionsController.editTransaction);
+
+/* Reports */
+router.get('/reports', reportsController.reports_list);
 
 /* ProductsOrder */
 router.get('/productsorder', productsOrderController.products_order_list);
@@ -29,7 +41,7 @@ router.post('/productsorder', productsOrderController.products_order_add);
 /* Users */
 router.post('/users/auth', usersController.authenticateUser);
 router.get('/users', basicAuth, usersController.listUsers);
-router.post('/users', basicAuth , usersController.addUser);
+router.post('/users', usersController.addUser);
 router.put('/users', basicAuth, usersController.editUser);
 router.delete('/users', basicAuth, usersController.removeUser);
 
@@ -69,27 +81,17 @@ router.get('/seed', async (req, res, next) => {
     try {
         let result = await mysql.query(databaseSeed);
         let usersContent = fs.readFileSync("./data/seedUsers.json","utf8");
-        let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
-        let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
+        //let ordersContent = fs.readFileSync("./data/seedOrders.json","utf8");
+        //let productOrdersContent = fs.readFileSync("./data/seedProductsOrder.json","utf8");
         let seedProducts = fs.readFileSync("./data/seedProducts.json","utf8");
         let seedWarehouses = fs.readFileSync("./data/seedWarehouses.json","utf8");
+
+        //res.send("AA"+Math.floor(Math.random() * 10));
 
         console.log("Start Creating Users");
         const users = JSON.parse(usersContent);    
         await users.forEach(async user => {
             await usersController.mySqlCreateUser(user);
-        });
-
-        console.log("Start Creating Orders");
-        const orders = JSON.parse(ordersContent);  
-        await orders.forEach(async order => {
-            await ordersController.mySqlCreateOrders(order)                
-        });
-        
-        console.log("Start Creating ProductsOrders");
-        const productsorder = JSON.parse(productOrdersContent);  
-        await productsorder.forEach(async productsorder => {
-            await productsOrderController.mySqlCreateProductsOrder(productsorder);
         });
 
         console.log("Start Creating Products");
@@ -103,7 +105,39 @@ router.get('/seed', async (req, res, next) => {
         await warehouses.forEach(async wh => {
             await warehousesController.warehouseSave(wh);           
         });
+        
+        let numOrders = Math.floor(Math.random() * 15) + 5; // 5~20
+        console.log("Creating "+numOrders+" orders");
+        for(let i=0; i<numOrders; ++i) {
+            // Ceil because MySQL id starts from 1
+            let user_id = Math.ceil(Math.random() * users.length); 
+            let warehouse_key = warehouses[Math.floor(Math.random() * warehouses.length)].name;
+            let ordertime = new Date(new Date().getTime() - Math.floor(Math.random() * 15 * 86400000));
+            let order = {
+                "user_id": user_id,
+                "warehouse_key": warehouse_key,
+                "ordertime": ordertime
+            };
+            console.log(order);
 
+            let order_id = await ordersController.mySqlCreateOrders(order);
+
+            let numProducts = Math.floor(Math.random() * 5) + 1; // 1~5
+            for(let x=0; x < numProducts; ++x) {
+                let product_index = Math.floor(Math.random() * products.length);
+                let productOrder = {
+                    "order_id": order_id.id,
+                    "product_key": products[product_index].barcode,
+                    "product_name": products[product_index].name,
+                    "quantity":Math.ceil(Math.random() * 3),
+                    "cost":products[product_index].cost,
+                    "sale_price":products[product_index].sale_price
+                };
+                await productsOrderController.mySqlCreateProductsOrder(productOrder);
+            }
+
+            
+        }
         res.send({"seed":1});
     } catch (error) {
         console.log(error);
@@ -111,6 +145,8 @@ router.get('/seed', async (req, res, next) => {
 });
 
 module.exports = router;
+
+
 
 
 
