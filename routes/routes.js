@@ -41,7 +41,7 @@ router.post('/productsorder', productsOrderController.products_order_add);
 /* Users */
 router.post('/users/auth', usersController.authenticateUser);
 router.get('/users', basicAuth, usersController.listUsers);
-router.post('/users', basicAuth , usersController.addUser);
+router.post('/users', usersController.addUser);
 router.put('/users', basicAuth, usersController.editUser);
 router.delete('/users', basicAuth, usersController.removeUser);
 

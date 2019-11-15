@@ -71,6 +71,17 @@ exports.editUser = async (req, res) => {
     }                   
 }
 
+exports.forgotPassword = async (req, res) => {
+    const username  = req.body.username;
+    const question  = req.body.question;
+    const answer    = req.body.answer;
+    const [rows, columns] = await mysql.query("SELECT * FROM users WHERE username = ?", [username]);
+    const user = rows[0];
+    if(question == user.question && answer == user.answer) {
+        
+    }
+}
+
 exports.removeUser = async (req, res) => {
     const username = req.body.username;
     try {
