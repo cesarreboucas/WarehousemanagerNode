@@ -1,31 +1,36 @@
 const mysql = require('../services/mysql');
-const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.product_key,\
-                po.product_name, po.quantity, po.cost, po.sale_price, o.done, o.ready \
+const productsOrderController = require('../controllers/productsOrderController');
+
+const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.barcode,\
+                po.name, po.quantity, po.cost, po.sale_price, o.done, o.ready \
                 from orders o \
                 inner join products_order po on o.id=po.order_id ';
 
 exports.ordersList = async function(req, res) {
-    let mysqlorders = await mysql.query(query + 'order by o.ordertime desc;');
+    let mysqlorders = await mysql.query(query + 'where o.done=0 order by o.ordertime desc;');
     let orders = MysqltoJson(mysqlorders[0]);
     res.send(orders);
 };
-
-exports.ordersListUndone = async function() {
-    let mysqlorders = await mysql.query(query + 'where o.done=0 order by po.product_key;');
-    return mysqlorders[0];
-}
 
 exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
 }
 
-exports.ordersAdd = function(req, res) {
+exports.ordersAdd = async function(req, res) {
     
     try {
-        module.exports.mySqlcreateOrders(req.body,function(r) {
-            res.send(r);
+        let order = req.body;
+        let products = order.products;
+        delete order.products;
+        let id = await module.exports.mySqlCreateOrders(order);
+        products.forEach(prod => {
+            prod.order_id = id.id;
+            productsOrderController.mySqlCreateProductsOrder(prod);
         });
+        
+        res.send(id);
+
             
     } catch (error) {
         console.log(error);
@@ -35,6 +40,7 @@ exports.ordersAdd = function(req, res) {
 
 exports.mySqlCreateOrders = async function(jsonOrder) {
     try {
+        // id | user_id | warehouse_key | ordertime | ready | done
         let result = await mysql.query('insert into orders set ?', jsonOrder);
         return {"id":result[0].insertId};
     } catch (error) {
@@ -47,7 +53,8 @@ function MysqltoJson(results) {
     let orders = new Array();
     results.forEach(e => {
         let product = {
-            "id": e.product_key,
+            "barcode": e.barcode,
+            "name": e.name,
             "quantity": e.quantity,
             "sale_price": e.sale_price,
             "cost": e.cost,
@@ -55,7 +62,8 @@ function MysqltoJson(results) {
         };
 
         if(previous!=e.id) {
-            delete e.product_key;
+            delete e.barcode;
+            delete e.name;
             delete e.quantity;
             delete e.sale_price;
             delete e.cost;

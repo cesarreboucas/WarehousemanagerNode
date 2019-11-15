@@ -24,7 +24,7 @@ exports.productsHangs = async function(req, res) {
     allOrders.forEach(prod => {  
         let whIndex = 0; // Default warehouse Index.
         let index = hangs.findIndex(function(e) {
-            if(e.product_key==prod.product_key) {
+            if(e.barcode==prod.barcode) {
                 return e;
             }
         });
@@ -56,64 +56,70 @@ exports.productsHangs = async function(req, res) {
     });
 
     //Getting all Movements
-    const ProdTransactionsController = require('../controllers/prodTransactionsController');
-    let transactions = await ProdTransactionsController.getTransactions();
-    transactions.forEach(transaction => {
+    const movementOrderController = require('./movementOrderController');
+    let movOrders = await movementOrderController.getMovOrders();
+    movOrders.forEach(movOrder => {
         let whSenderIndex=0;
         let whReceiverIndex=0;
+        console.log(hangs);
+        console.log(movOrder);
         let index = hangs.findIndex(function(e) {
-            if(e.product_key==transaction.product_key) {
+            if(e.barcode==movOrder.barcode) {
+                console.log("Returning"+e);
                 return e;
             }
         });
-
+        
         if(index == -1) {
-            hangs.push(getDefaultHangObj(transaction, transaction.warehouse_receiver));
+            hangs.push(getDefaultHangObj(movOrder, movOrder.warehouse_receiver));
             index = (hangs.length -1);
+            console.log("Index "+index);
+            console.log(hangs[index]);
             //Inserting the sender Warehouse (if exists)
-            if(transaction.warehouse_sender!==undefined && transaction.warehouse_sender!="") {
-                hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_sender));
+            if(movOrder.warehouse_sender!==undefined && movOrder.warehouse_sender!="") {
+                hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_sender));
             }
             
+        }
+        
+        //Looking for the Receiver
+        whReceiverIndex = hangs[index].warehouses.findIndex(function(e) {
+            if(e.warehouse_key==movOrder.warehouse_receiver) {
+                return e;
+            }
+        });
+        if(whReceiverIndex == -1) {
+            hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_receiver));
+            whReceiverIndex = (hangs[index].warehouses.length -1);
+        }          
+        console.log("whReceiverIndex "+whReceiverIndex);
+        if(movOrder.received) {
+            hangs[index].warehouses[whReceiverIndex].quantity_in_stock += movOrder.quantity;
         } else {
-            //Looking for the Receiver
-            whReceiverIndex = hangs[index].warehouses.findIndex(function(e) {
-                if(e.warehouse_key==transaction.warehouse_receiver) {
+            hangs[index].warehouses[whReceiverIndex].quantity_future_movs += movOrder.quantity;
+        }
+
+        //Looking for the wh sender.
+        if(movOrder.warehouse_sender!==undefined && movOrder.warehouse_sender!="") {
+            whSenderIndex = hangs[index].warehouses.findIndex(function(e) {
+                if(e.warehouse_key==movOrder.warehouse_sender) {
                     return e;
                 }
             });
-            if(whReceiverIndex == -1) {
-                hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_receiver));
-                whReceiverIndex = (hangs[index].warehouses.length -1);
-            }          
+            if(whSenderIndex == -1) {
+                hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_sender));
+                whSenderIndex = (hangs[index].warehouses.length -1);
+            }
 
-            if(transaction.received) {
-                hangs[index].warehouses[whReceiverIndex].quantity_in_stock += transaction.quantity;
+            if(movOrder.sent) {
+                hangs[index].warehouses[whSenderIndex].quantity_in_stock -= movOrder.quantity;
             } else {
-                hangs[index].warehouses[whReceiverIndex].quantity_future_movs += transaction.quantity;
+                hangs[index].warehouses[whSenderIndex].quantity_future_movs -= movOrder.quantity;
             }
-
-            //Looking for the wh sender.
-            if(transaction.warehouse_sender!==undefined && transaction.warehouse_sender!="") {
-                whSenderIndex = hangs[index].warehouses.findIndex(function(e) {
-                    if(e.warehouse_key==transaction.warehouse_sender) {
-                        return e;
-                    }
-                });
-                if(whSenderIndex == -1) {
-                    hangs[index].warehouses.push(getDefaultWaregouseHangObj(transaction.warehouse_sender));
-                    whSenderIndex = (hangs[index].warehouses.length -1);
-                }
-    
-                if(transaction.sent) {
-                    hangs[index].warehouses[whSenderIndex].quantity_in_stock -= transaction.quantity;
-                } else {
-                    hangs[index].warehouses[whSenderIndex].quantity_future_movs -= transaction.quantity;
-                }
-            }
+        }
             
 
-        }
+        
 
     });
     res.send(hangs);
@@ -121,8 +127,8 @@ exports.productsHangs = async function(req, res) {
 
 function getDefaultHangObj(orderProd,warehouse_key) {
     hang = new Object();
-    hang.product_key = orderProd.product_key
-    hang.product_name = orderProd.product_name;
+    hang.barcode = orderProd.barcode;
+    hang.name = orderProd.name;
     hang.warehouses = new Array();
     hang.warehouses.push(getDefaultWaregouseHangObj(warehouse_key));
     return hang;
@@ -136,14 +142,6 @@ function getDefaultWaregouseHangObj(warehouse_key) {
         "quantity_compromised":0,
         "quantity_future_movs":0
     }; 
-}
-
-exports.products_quantitys = async function(req, res) {
-    if(req.query.barcode===undefined) {
-        res.send("Pleas fill the \"barcode\"");
-    }
-    //TODO
-    res.send("TODO!");
 }
 
 exports.products_add = async function(req, res) {
