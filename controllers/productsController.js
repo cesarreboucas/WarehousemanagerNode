@@ -16,6 +16,11 @@ exports.products_list = function(req, res) {
 };
 
 exports.productsHangs = async function(req, res) {
+    hangs = await module.exports.getProductHangs();
+    res.send(hangs);
+}
+
+module.exports.getProductHangs = async function() {
     // Getting All Orders
     const ordersController = require('../controllers/ordersController');
     let allOrders = await ordersController.ordersListAll();
@@ -33,7 +38,7 @@ exports.productsHangs = async function(req, res) {
             hangs.push(getDefaultHangObj(prod,prod.warehouse_key));
             index = (hangs.length -1);
         } else {
-             whIndex = hangs[index].warehouses.findIndex(function(e) {
+            whIndex = hangs[index].warehouses.findIndex(function(e) {
                 if(e.warehouse_key==prod.warehouse_key) {
                     return e;
                 }
@@ -161,7 +166,7 @@ exports.productsHangs = async function(req, res) {
             }
         }
     };
-    res.send(hangs);
+    return hangs;
 }
 
 function getDefaultHangObj(orderProd,warehouse_key) {

@@ -7,6 +7,10 @@ const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.barcode,
                 inner join products_order po on o.id=po.order_id ';
 
 exports.ordersList = async function(req, res) {
+    // Updating orders before sending
+    let productsController = require("../controllers/productsController");
+    await productsController.getProductHangs();
+
     let mysqlorders = await mysql.query(query + 'where o.done=0 order by o.ordertime desc;');
     let orders = module.exports.MysqltoJson(mysqlorders[0]);
     res.send(orders);
