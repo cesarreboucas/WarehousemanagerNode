@@ -106,13 +106,13 @@ router.get('/seed', async (req, res, next) => {
             await warehousesController.warehouseSave(wh);           
         });
         
-        let numOrders = Math.floor(Math.random() * 15) + 5; // 5~20
+        let numOrders = Math.floor(Math.random() * 10) + 5; // 5~20
         console.log("Creating "+numOrders+" orders");
         for(let i=0; i<numOrders; ++i) {
             // Ceil because MySQL id starts from 1
             let user_id = Math.ceil(Math.random() * users.length); 
             let warehouse_key = warehouses[Math.floor(Math.random() * warehouses.length)].name;
-            let ordertime = new Date(new Date().getTime() - Math.floor(Math.random() * 15 * 86400000));
+            let ordertime = new Date(new Date().getTime() - (50/(i+1) * 86400000));
             let order = {
                 "user_id": user_id,
                 "warehouse_key": warehouse_key,

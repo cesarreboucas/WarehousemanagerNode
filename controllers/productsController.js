@@ -38,13 +38,13 @@ exports.productsHangs = async function(req, res) {
                     return e;
                 }
             });
-
             if(whIndex == -1) {
                 hangs[index].warehouses.push(getDefaultWaregouseHangObj(prod.warehouse_key));
                 whIndex = (hangs[index].warehouses.length -1);
             }
         }
         
+        //Change stock based on the Order status
         if(prod.done==1) { // Done
             hangs[index].warehouses[whIndex].quantity_in_stock -= prod.quantity;
         } else if(prod.ready==1) { //Ready but not done.
@@ -61,11 +61,8 @@ exports.productsHangs = async function(req, res) {
     movOrders.forEach(movOrder => {
         let whSenderIndex=0;
         let whReceiverIndex=0;
-        console.log(hangs);
-        console.log(movOrder);
         let index = hangs.findIndex(function(e) {
             if(e.barcode==movOrder.barcode) {
-                console.log("Returning"+e);
                 return e;
             }
         });
@@ -73,8 +70,6 @@ exports.productsHangs = async function(req, res) {
         if(index == -1) {
             hangs.push(getDefaultHangObj(movOrder, movOrder.warehouse_receiver));
             index = (hangs.length -1);
-            console.log("Index "+index);
-            console.log(hangs[index]);
             //Inserting the sender Warehouse (if exists)
             if(movOrder.warehouse_sender!==undefined && movOrder.warehouse_sender!="") {
                 hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_sender));
@@ -82,7 +77,7 @@ exports.productsHangs = async function(req, res) {
             
         }
         
-        //Looking for the Receiver
+        //Looking for the Receiver (Always exists)
         whReceiverIndex = hangs[index].warehouses.findIndex(function(e) {
             if(e.warehouse_key==movOrder.warehouse_receiver) {
                 return e;
@@ -92,14 +87,14 @@ exports.productsHangs = async function(req, res) {
             hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_receiver));
             whReceiverIndex = (hangs[index].warehouses.length -1);
         }          
-        console.log("whReceiverIndex "+whReceiverIndex);
+        
         if(movOrder.received) {
             hangs[index].warehouses[whReceiverIndex].quantity_in_stock += movOrder.quantity;
         } else {
             hangs[index].warehouses[whReceiverIndex].quantity_future_movs += movOrder.quantity;
         }
 
-        //Looking for the wh sender.
+        //Looking for the wh sender. (Not always (exceptions are the buys orders))
         if(movOrder.warehouse_sender!==undefined && movOrder.warehouse_sender!="") {
             whSenderIndex = hangs[index].warehouses.findIndex(function(e) {
                 if(e.warehouse_key==movOrder.warehouse_sender) {
@@ -110,18 +105,62 @@ exports.productsHangs = async function(req, res) {
                 hangs[index].warehouses.push(getDefaultWaregouseHangObj(movOrder.warehouse_sender));
                 whSenderIndex = (hangs[index].warehouses.length -1);
             }
-
             if(movOrder.sent) {
                 hangs[index].warehouses[whSenderIndex].quantity_in_stock -= movOrder.quantity;
             } else {
                 hangs[index].warehouses[whSenderIndex].quantity_future_movs -= movOrder.quantity;
             }
         }
-            
-
-        
-
     });
+
+    //Trying to ser orders to READY.
+    jsonOrders = ordersController.MysqltoJson(allOrders);
+    for(let order of jsonOrders) {
+        if(order.ready==0) {
+            let ready = true;
+            // To save index positions and wh positions in case of ready :(
+            let positions = {
+                "index": new Array(),
+                "warehouses": new Array(),
+                "quantity": new Array()
+            };
+
+            for(let product of order.products) {
+                //Gathering index on hangs
+                let index = hangs.findIndex(function(e) {
+                    if(e.barcode==product.barcode) {
+                        return e;
+                    }
+                });
+                //gathering wh index on product hang
+                let whIndex = hangs[index].warehouses.findIndex(function(e) {
+                    if(e.warehouse_key==order.warehouse_key) {
+                        return e;
+                    }
+                });
+                let freeQuantity = hangs[index].warehouses[whIndex].quantity_in_stock + 
+                    hangs[index].warehouses[whIndex].quantity_compromised;
+                if(product.quantity > freeQuantity) { // No enough stock.. go to next order
+                    ready = false;
+                    break;
+                } else {
+                    positions.index.push(index);
+                    positions.warehouses.push(whIndex);
+                    positions.quantity.push(product.quantity);
+                }
+            }
+            if(ready) {
+                
+                if(await ordersController.setOrderReady(order.id)) {
+                    for(let x=0; x < positions.index.length; ++x) {
+                        hangs[positions.index[x]].warehouses[positions.warehouses[x]].quantity_compromised -= positions.quantity[x];
+                        hangs[positions.index[x]].warehouses[positions.warehouses[x]].quantity_sold += positions.quantity[x];
+                    }
+                }
+
+            }
+        }
+    };
     res.send(hangs);
 }
 

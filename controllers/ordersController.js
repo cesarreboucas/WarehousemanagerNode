@@ -8,13 +8,24 @@ const query = 'select o.id, o.user_id, o.warehouse_key, o.ordertime, po.barcode,
 
 exports.ordersList = async function(req, res) {
     let mysqlorders = await mysql.query(query + 'where o.done=0 order by o.ordertime desc;');
-    let orders = MysqltoJson(mysqlorders[0]);
+    let orders = module.exports.MysqltoJson(mysqlorders[0]);
     res.send(orders);
 };
 
 exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
+}
+
+exports.setOrderReady = async function(id) { // Used to get quantitys amount
+    let res = await mysql.query("update orders set ready=1 where id= ? limit 1;", id);
+    return (res[0]? true : false);
+}
+
+exports.setOrderDone = async function(id) { // Used to get quantitys amount
+    await mysql.query("update orders set done=1 where id= ? limit 1;", id);
+    
+    return true;
 }
 
 exports.ordersAdd = async function(req, res) {
@@ -48,7 +59,7 @@ exports.mySqlCreateOrders = async function(jsonOrder) {
     }
 };
 
-function MysqltoJson(results) {
+exports.MysqltoJson = function (results) {
     let previous = 0;
     let orders = new Array();
     results.forEach(e => {
