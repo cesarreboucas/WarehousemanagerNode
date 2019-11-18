@@ -13,6 +13,7 @@ exports.getMovOrders = async function() {
         transaction.id = doc.id;
         prodTransactions.push(transaction);
     }
+    console.log('[TRANSACTIONS]', prodTransactions);
     return prodTransactions;
 }
 

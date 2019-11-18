@@ -26,7 +26,7 @@ router.get('/orders', ordersController.ordersList);
 router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */
-router.get('/movorders', movOrdersController.movOrderList);
+router.get('/movorders', movOrdersController.getMovOrders);
 router.post('/movorders', movOrdersController.addMovOrder);
 router.put('/movorders', movOrdersController.editMovOrder);
 
