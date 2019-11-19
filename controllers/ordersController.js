@@ -82,8 +82,7 @@ exports.MysqltoJson = function (results) {
             "name": e.name,
             "quantity": e.quantity,
             "sale_price": e.sale_price,
-            "cost": e.cost,
-            "quantity": e.quantity
+            "cost": e.cost
         };
 
         if(previous!=e.id) {
@@ -92,7 +91,6 @@ exports.MysqltoJson = function (results) {
             delete e.quantity;
             delete e.sale_price;
             delete e.cost;
-            delete e.quantity;
             orders.push(e);
             orders[orders.length-1].products = new Array();
             orders[orders.length-1].products.push(product);
