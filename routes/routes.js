@@ -23,6 +23,7 @@ router.post('/warehouses', warehousesController.warehouse_add);
 
 /* Orders */
 router.get('/orders', ordersController.ordersList);
+router.get('/orders/user/:id', ordersController.ordersListByUser);
 router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */

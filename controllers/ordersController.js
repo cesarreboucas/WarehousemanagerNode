@@ -16,6 +16,16 @@ exports.ordersList = async function(req, res) {
     res.send(orders);
 };
 
+exports.ordersListByUser = async function(req, res) {
+    // Updating orders before sending
+    let productsController = require("../controllers/productsController");
+    await productsController.getProductHangs();
+
+    let mysqlorders = await mysql.query(query + 'where o.user_id= ? order by o.ordertime desc;', req.params.id);
+    let orders = module.exports.MysqltoJson(mysqlorders[0]);
+    res.send(orders);
+}
+
 exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
