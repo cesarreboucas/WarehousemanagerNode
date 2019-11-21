@@ -31,6 +31,10 @@ router.get('/movorders', movOrdersController.getMovOrders);
 router.post('/movorders', movOrdersController.addMovOrder);
 router.put('/movorders', movOrdersController.editMovOrder);
 
+router.get('/movorders/:warehouse/todo', movOrdersController.getTodoOrders);
+router.get('/movorders/:warehouse/pending', movOrdersController.getPendingOrders);
+router.get('/movorders/:warehouse/completed', movOrdersController.getCompletedOrders);
+
 /* Reports */
 router.get('/reports', reportsController.reports_list);
 
