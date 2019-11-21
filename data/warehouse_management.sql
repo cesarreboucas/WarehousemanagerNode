@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(255) NOT NULL, 
   `password` varchar(255) NOT NULL, 
   `role` varchar(255) NOT NULL, 
+  `favourite_warehouse` varchar(255) DEFAULT "" NOT NULL, 
   `question` varchar(255) NOT NULL, 
   `answer` varchar(255) NOT NULL, 
   PRIMARY KEY (`id`),

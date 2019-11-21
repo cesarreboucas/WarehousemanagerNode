@@ -5,7 +5,8 @@
         "password": "1234",
         "role": "admin",
         "question": "What was my first pet's name?",
-        "answer": "Toto"
+        "answer": "Toto",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Mella Galbraeth",
@@ -13,7 +14,8 @@
         "password": "1234",
         "role": "associate",
         "question": "What was the last name of my childhood best friend?",
-        "answer": "Wick"
+        "answer": "Wick",
+        "favourite_warehouse" : "NewWestDC"
     },
     {
         "name": "Salaidh Bagenal",
@@ -21,7 +23,8 @@
         "password": "1234",
         "role": "associate",
         "question": "What was my favorite subject in school?",
-        "answer": "Physical education"
+        "answer": "Physical education",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Heall Castagne",
@@ -29,7 +32,8 @@
         "password": "1234",
         "role": "client",
         "question": "Where did I first meet my significant other?",
-        "answer": "Vancouver"
+        "answer": "Vancouver",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Yalonda De Normanville",
@@ -37,7 +41,8 @@
         "password": "1234",
         "role": "client",
         "question": "What was my favorite subject in school?",
-        "answer": "Mathematics"
+        "answer": "Mathematics",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Ilise Rosin",
@@ -45,7 +50,8 @@
         "password": "1234",
         "role": "client",
         "question": "What was my first pet's name?",
-        "answer": "Fido"
+        "answer": "Fido",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Arty Wallsworth",
@@ -53,7 +59,8 @@
         "password": "1234",
         "role": "client",
         "question": "What was my favorite game as a child?",
-        "answer": "Truth or Dare"
+        "answer": "Truth or Dare",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Nona Megarrell",
@@ -61,7 +68,8 @@
         "password": "1234",
         "role": "client",
         "question": "Who was my most memorable school teacher?",
-        "answer": "Ms. Sarah"
+        "answer": "Ms. Sarah",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Jaine Jirik",
@@ -69,7 +77,8 @@
         "password": "1234",
         "role": "client",
         "question": "What was my favorite toy as a child?",
-        "answer": "Videogame"
+        "answer": "Videogame",
+        "favourite_warehouse" : "VancouverDC"
     },
     {
         "name": "Cecil Hancox",
@@ -77,6 +86,7 @@
         "password": "1234",
         "role": "client",
         "question": "Who was my most memorable school teacher?",
-        "answer": "Ms. Paloma"
+        "answer": "Ms. Paloma",
+        "favourite_warehouse" : "VancouverDC"
     }
 ]

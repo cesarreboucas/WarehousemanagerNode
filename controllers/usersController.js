@@ -121,11 +121,12 @@ exports.mySqlCreateUser = async (jsonUser) => {
     const role = jsonUser.role.toLowerCase();
     const question = jsonUser.question;
     const answer = jsonUser.answer;
+    const favourite_warehouse = jsonUser.favourite_warehouse;
     try {
         password = bcrypt.hashSync(password, 8);
-        const query = 'INSERT INTO users (name, username, password, role, question, answer) \
-                       VALUES (?, ?, ?, ?, ?, ?);';
-        const fieldValues = [name, username, password, role, question, answer];
+        const query = 'INSERT INTO users (name, username, password, role, favourite_warehouse, question, answer) \
+                       VALUES (?, ?, ?, ?, ?, ?, ?);';
+        const fieldValues = [name, username, password, favourite_warehouse ,role, question, answer];
         const [rows, fields] = await mysql.query(query, fieldValues);
         return {"id" : rows.insertId};
     } catch (error) {
