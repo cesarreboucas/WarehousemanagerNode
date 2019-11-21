@@ -54,7 +54,7 @@ router.delete('/users', basicAuth, usersController.removeUser);
  */
 async function basicAuth(req, res, next) {
     // check for basic auth header
-    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+    /*if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         console.log('[UNAITHORIZED]');
         return res.status(401).json({ message: 'Missing Authorization Header' });
     }
@@ -69,7 +69,7 @@ async function basicAuth(req, res, next) {
     }
 
     // attach user to request object
-    req.user = user
+    req.user = user*/
 
     next();
 }
