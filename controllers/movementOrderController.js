@@ -2,15 +2,18 @@ const firestore = require('../services/firestore');
 
 
 exports.getMovOrders = async function() {
-    let prodTransactions = new Array();
-    let docs = await firestore.collection('movOrders').get();
-    for(doc of docs.docs) {
-        let transaction = doc.data();
-        transaction.id = doc.id;
-        prodTransactions.push(transaction);
-    }
-    //console.log('[TRANSACTIONS]', prodTransactions);
+    try {
+        let prodTransactions = new Array();
+        let docs = await firestore.collection('movOrders').get();
+        for(doc of docs.docs) {
+            let transaction = doc.data();
+            transaction.id = doc.id;
+            prodTransactions.push(transaction);
+        }
     return prodTransactions;
+    } catch (error) {
+        throw error;
+    }
 }
 
 exports.addMovOrder = async function(req, res) {
@@ -21,6 +24,15 @@ exports.addMovOrder = async function(req, res) {
 exports.editMovOrder = async function(req, res) {
     let transaction = await firestore.doc('movOrders/'+req.body.id).update(req.body);
     res.send({"id" : transaction.id});
+}
+
+exports.getAllMovOrders = async function(req, res) {
+    try {
+        let collection = await module.exports.getMovOrders();
+        res.send(collection);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 }
 
 exports.getTodoOrders = async function(req, res) {
