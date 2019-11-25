@@ -27,7 +27,7 @@ router.get('/orders/user/:id', ordersController.ordersListByUser);
 router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */
-router.get('/movorders', movOrdersController.getMovOrders);
+router.get('/movorders', movOrdersController.getAllMovOrders);
 router.post('/movorders', movOrdersController.addMovOrder);
 router.put('/movorders', movOrdersController.editMovOrder);
 
