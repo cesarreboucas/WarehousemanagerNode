@@ -21,7 +21,7 @@ exports.productsHangs = async function(req, res) {
 }
 
 exports.productsHangsByWarehouseByProduct = async function(req, res) {
-    //console.log(req.params);
+    console.log(req.params);
     hangs = await module.exports.getProductHangs();
     for(let i=0; i < hangs.length; ++i) {
         if(hangs[i].barcode!=req.params.barcode) {
@@ -36,7 +36,9 @@ exports.productsHangsByWarehouseByProduct = async function(req, res) {
             }
         }
     }
-    res.send(hangs);
+    console.log(hangs[0]);
+    
+    res.send(hangs[0]);
 }
 
 

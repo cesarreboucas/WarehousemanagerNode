@@ -71,6 +71,26 @@ exports.getPendingOrders = async function(req, res) {
     }
 }
 
+
+exports.updateMovOrder = async function(req, res) {
+    let side = req.body.side;
+    //let done = req.body.done;
+    //let id = req.body.id;
+    let updateFields = new Object();
+    if(side=="received") {
+        updateFields.received = true;
+    } else {
+        updateFields.sent = true;
+    }
+    console.log(req.body);
+
+    let transaction = await firestore.doc('movOrders/'+req.body.id).update(updateFields);
+    console.log(transaction);
+    res.send("ok");
+
+}
+
+
 exports.getCompletedOrders = async function(req, res) {
     let name = req.params.warehouse;
     let todoArray = [];

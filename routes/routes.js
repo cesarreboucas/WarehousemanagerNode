@@ -31,6 +31,7 @@ router.post('/orders', ordersController.ordersAdd);
 router.get('/movorders', movOrdersController.getAllMovOrders);
 router.post('/movorders', movOrdersController.addMovOrder);
 router.put('/movorders', movOrdersController.editMovOrder);
+router.patch('/movorders', movOrdersController.updateMovOrder);
 
 router.get('/movorders/:warehouse/todo', movOrdersController.getTodoOrders);
 router.get('/movorders/:warehouse/pending', movOrdersController.getPendingOrders);
