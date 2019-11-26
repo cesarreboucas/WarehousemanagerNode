@@ -14,7 +14,6 @@ exports.listUsers = async (req, res) => {
 exports.authenticateUser = async (req, res) => {
     try {
         let user = await module.exports.checkUser(req.body);
-        console.log(user != null);
         if(user != null) {
             res.send(user);
         } else {

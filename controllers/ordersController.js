@@ -54,7 +54,7 @@ exports.ordersAdd = async function(req, res) {
             productsOrderController.mySqlCreateProductsOrder(prod);
         });
         
-        res.send(id);
+        res.send(req.body);
 
             
     } catch (error) {

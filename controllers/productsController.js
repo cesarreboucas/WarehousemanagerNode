@@ -20,6 +20,27 @@ exports.productsHangs = async function(req, res) {
     res.send(hangs);
 }
 
+exports.productsHangsByWarehouseByProduct = async function(req, res) {
+    //console.log(req.params);
+    hangs = await module.exports.getProductHangs();
+    for(let i=0; i < hangs.length; ++i) {
+        if(hangs[i].barcode!=req.params.barcode) {
+            hangs.splice(i,1);
+            --i;
+        } else {
+            for(let x=0; x < hangs[i].warehouses.length; ++x) {
+                if(hangs[i].warehouses[x].warehouse_key!=req.params.warehouse) {
+                    hangs[i].warehouses.splice(x,1);
+                    --x;
+                }
+            }
+        }
+    }
+    res.send(hangs);
+}
+
+
+
 module.exports.getProductHangs = async function() {
     // Getting All Orders
     const ordersController = require('../controllers/ordersController');

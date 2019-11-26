@@ -15,6 +15,7 @@ router.get('/', function(req, res) {
 /* Products. */
 router.get('/products', productsController.products_list);
 router.get('/products/hangs/', productsController.productsHangs);
+router.get('/products/hangs/:warehouse/:barcode',productsController.productsHangsByWarehouseByProduct);
 router.post('/products', productsController.products_add);
 
 /* Warehouses. */
