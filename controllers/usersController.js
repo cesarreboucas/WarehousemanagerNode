@@ -100,6 +100,16 @@ exports.removeUser = async (req, res) => {
     }
 }
 
+exports.getAssociates = async (req, res) => {
+    try {
+        let [rows, columns] = await mysql.query('select * from users where role = associate');
+        console.log(rows[0]);
+        res.send(rows[0]);    
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
 /**
 +----------+--------------+------+-----+---------+----------------+
 | Field    | Type         | Null | Key | Default | Extra          |
