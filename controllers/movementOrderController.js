@@ -42,8 +42,8 @@ exports.getTodoOrders = async function(req, res) {
         let collection = await exports.getMovOrders();
         //console.log(collection);
         collection.forEach(element => {
-            if(element.warehouse_receiver === name && element.received === false || 
-                element.warehouse_sender === name && element.sent === false)
+            if(element.warehouse_receiver === name || 
+                element.warehouse_sender === name)
                 {
                     todoArray.push(element);
                 }
