@@ -26,6 +26,33 @@ exports.ordersListByUser = async function(req, res) {
     res.send(orders);
 }
 
+exports.ordersListByWarehouse = async function(req, res) {
+    // Updating orders before sending
+    let productsController = require("../controllers/productsController");
+    await productsController.getProductHangs();
+
+    let mysqlorders = await mysql.query(query + 'where o.done = 0 and o.warehouse_key= ? order by o.ordertime desc;', req.params.warehouse);
+    let orders = module.exports.MysqltoJson(mysqlorders[0]);
+    res.send(orders);
+}
+
+
+exports.updateOrder = async function(req, res) {
+    let mysqlorders = await mysql.query('update orders set ready=1, done=1 where id=?', req.body.id);
+    //let orders = module.exports.MysqltoJson(mysqlorders[0]);
+    res.send(200);
+}
+
+exports.ordersListByWarehouse = async function(req, res) {
+    // Updating orders before sending
+    let productsController = require("../controllers/productsController");
+    await productsController.getProductHangs();
+
+    let mysqlorders = await mysql.query(query + 'where o.done = 0 and o.warehouse_key= ? order by o.ordertime desc;', req.params.warehouse);
+    let orders = module.exports.MysqltoJson(mysqlorders[0]);
+    res.send(orders);
+}
+
 exports.ordersListAll = async function() { // Used to get quantitys amount
     let mysqlorders = await mysql.query(query + ';');
     return mysqlorders[0];
