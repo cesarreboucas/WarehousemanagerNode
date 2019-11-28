@@ -10,7 +10,7 @@
     },
     {
         "name": "Mella Galbraeth",
-        "username": "mgalbraethe@purevolume.com",
+        "username": "mgalbraethe@newvolume.com",
         "password": "1234",
         "role": "associate",
         "question": "What was the last name of my childhood best friend?",
@@ -19,12 +19,12 @@
     },
     {
         "name": "Salaidh Bagenal",
-        "username": "sbagenalm@wunderground.com",
+        "username": "sbagenalm@sunderground.com",
         "password": "1234",
         "role": "associate",
         "question": "What was my favorite subject in school?",
         "answer": "Physical education",
-        "favourite_warehouse" : "VancouverDC"
+        "favourite_warehouse" : "SurreyDC"
     },
     {
         "name": "Heall Castagne",
