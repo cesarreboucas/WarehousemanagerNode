@@ -27,6 +27,7 @@ router.get('/orders', ordersController.ordersList);
 router.get('/orders/user/:id', ordersController.ordersListByUser);
 router.get('/orders/warehouse/:warehouse', ordersController.ordersListByWarehouse);
 router.patch('/orders', ordersController.updateOrder);
+router.post('/orders', ordersController.ordersAdd);
 
 /* ProdTransactions */
 router.get('/movorders', movOrdersController.getAllMovOrders);
