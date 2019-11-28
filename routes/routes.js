@@ -46,12 +46,13 @@ router.post('/productsorder', productsOrderController.products_order_add);
 
 /* Users */
 router.post('/users/auth', usersController.authenticateUser);
-router.put('/users', usersController.editUser);
+router.post('/users/role', usersController.editUserRole);
+router.post('/users/favourite_warehouse', usersController.editUserFavouriteWarehouse);
 router.patch('/users', usersController.forgotPassword);
 router.get('/users',  usersController.listUsers);
 router.post('/users', usersController.addUser);
 router.delete('/users',  usersController.removeUser);
-router.get('/users/associates', usersController.getAssociates);
+router.get('/users/:favourite_warehouse/associates', usersController.getAssociates);
 
 /* ####### SEED ############*/
 router.get('/seed', async (req, res, next) => {

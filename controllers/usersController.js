@@ -53,7 +53,7 @@ exports.addUser = async (req, res) => {
     }    
 };
 
-exports.editUser = async (req, res) => {
+exports.editUserRole = async (req, res) => {
     const username = req.body.username;
     const role = req.body.role;
 
@@ -68,6 +68,20 @@ exports.editUser = async (req, res) => {
     } catch (error) {
         res.status(500).send(error.message);
     }                   
+}
+
+exports.editUserFavouriteWarehouse = async (req, res) => {
+    const username = req.body.username;
+    const favourite_warehouse = req.body.favourite_warehouse;
+    const fieldValues = [favourite_warehouse, username];
+    const query = 'UPDATE users SET favourite_warehouse = ? \
+                   WHERE username = ?';
+    try {
+        let result = await mysql.query(query, fieldValues);
+        res.send();
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 }
 
 exports.forgotPassword = async (req, res) => {
@@ -101,10 +115,10 @@ exports.removeUser = async (req, res) => {
 }
 
 exports.getAssociates = async (req, res) => {
+    const favourite_warehouse = req.params.favourite_warehouse;
     try {
-        let [rows, columns] = await mysql.query('select * from users where role = associate');
-        console.log(rows[0]);
-        res.send(rows[0]);    
+        let [rows, columns] = await mysql.query('select * from users where role = "associate" and favourite_warehouse = ?', [favourite_warehouse]);
+        res.send(rows);    
     } catch (error) {
         res.status(500).send(error.message);
     }
